@@ -1,0 +1,75 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "60dd20a16f1ee102107ae1baded014af"
+name = "Bundlo | Bundles Builder App"
+api_version = "2025-10"
+application_url = "https://PENDING_DOMAIN"
+embedded = true
+
+
+
+[webhooks]
+api_version = "2026-04"
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/scopes_update"
+  topics = [ "app/scopes_update" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/orders-paid"
+  topics = [ "orders/paid" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/uninstalled"
+  topics = [ "app/uninstalled" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/refunds-create"
+  topics = [ "refunds/create" ]
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_customers,read_inventory,read_orders,read_products,read_publications,read_themes,write_cart_transforms,write_discounts,write_inventory,write_products,write_publications"
+#needs applicationurl
+[auth]
+redirect_urls = [
+  "https://Pending_DOMAIN/api/auth"
+]
+
+[app_proxy]
+url = "https://Pending_DOMAIN"
+subpath = "bundlo"
+prefix = "apps"
+
+[[extensions]]
+type = "theme"
+handle = "byob-ui"
+
+[sidekick]
+extensions_summary = "Search and manage bundle offers, post-purchase upsells, and cart upsell widgets to increase average order value"
+
+[product.metafields.app.data]
+name = "Bundle data"
+description = "Complete bundle configuration JSON for this product"
+type = "json"
+
+  [product.metafields.app.data.access]
+  admin = "merchant_read"
+  storefront = "public_read"
+
+[discount.metafields.app.function-configuration]
+type = "json"
+name = "Function configuration"
+
+  [discount.metafields.app.function-configuration.access]
+  admin = "merchant_read_write"
+  storefront = "none"
+
+[shop.metafields.app.progress_bar]
+name = "Progress Bar Config"
+description = "Stores the free shipping / milestone progress bar configuration for the storefront widget"
+type = "json"
+
+  [shop.metafields.app.progress_bar.access]
+  admin = "merchant_read"
+  storefront = "public_read"

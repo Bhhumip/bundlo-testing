@@ -1,0 +1,377 @@
+{% comment %} <div>
+  {{ "fixed bundle.png" | asset_url | image_tag }}
+</div>
+
+{% schema %}
+{
+  "name": "Fixed Bundle Widget",
+  "target": "section",
+  "settings": [
+    
+  ]
+}
+{% endschema %} {% endcomment %}
+ {% comment %}
+  Build Your Own Bundle Section
+  Reads products from metaobjects of type: build_your_own_bundle
+  Slot count is configurable via section settings (default: 4)
+{% endcomment %}
+{%- comment %} Read bundle metafields from the product if available {%- endcomment %}
+{%- assign byob_product        = block.settings.byob_product -%}
+{%- assign byob_bundle_code    = byob_product.metafields.bundle.bundle_code | default: '' -%}
+{%- assign byob_parent_variant = byob_product.selected_or_first_available_variant.id | default: '' -%}
+
+{%- liquid
+  assign slot_count = block.settings.slot_count | default: 4
+  assign bundle_title = block.settings.title | default: 'Build Your Own Box'
+  assign bundle_subtitle = 'You can select ' | append: slot_count | append: ' items'
+  assign raw_price = byob_product.metafields.bundle.price.value | default: ''
+  if raw_price != blank
+  assign bundle_total_price = raw_price | times: 100
+  else
+  assign bundle_total_price = block.settings.bundle_price | default: 59900
+  endif
+  assign add_to_cart_label = block.settings.add_to_cart_label | default: 'Add to Cart'
+  assign footer_label = block.settings.footer_label | default: 'BUILD YOUR OWN BOX'
+  assign section_bg_color = block.settings.section_bg_color | default: '#ffffff'
+  assign heading_color = block.settings.heading_color | default: '#000000'
+  assign subheading_color = block.settings.subheading_color | default: '#666666'
+  assign body_text_color = block.settings.body_text_color | default: '#333333'
+  assign card_title_color = block.settings.card_title_color | default: '#000000'
+  assign card_price_color = block.settings.card_price_color | default: '#FF6B6B'
+  assign button_bg_color = block.settings.button_bg_color | default: '#000000'
+  assign button_text_color = block.settings.button_text_color | default: '#ffffff'
+  assign remove_button_bg_color = block.settings.remove_button_bg_color | default: '#FF6B6B'
+  assign remove_button_text_color = block.settings.remove_button_text_color | default: '#ffffff'
+
+  assign bundle_metaobjects = shop.metaobjects.build_your_own_bundle.values
+-%}
+
+<style>
+  #build-your-own-bundle-{{ block.id }} {
+    background-color: {{ section_bg_color }};
+  }
+  #build-your-own-bundle-{{ block.id }} .byob-title {
+    color: {{ heading_color }};
+  }
+  #build-your-own-bundle-{{ block.id }} .byob-subtitle {
+    color: {{ subheading_color }};
+  }
+  #build-your-own-bundle-{{ block.id }} .byob-slot-label,
+  #build-your-own-bundle-{{ block.id }} .byob-empty {
+    color: {{ body_text_color }};
+  }
+  #build-your-own-bundle-{{ block.id }} .byob-card-title {
+    color: {{ card_title_color }};
+  }
+  #build-your-own-bundle-{{ block.id }} .byob-card-price {
+    color: {{ card_price_color }};
+  }
+  #build-your-own-bundle-{{ block.id }} .byob-add-btn {
+    background-color: {{ button_bg_color }};
+    color: {{ button_text_color }};
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+  #build-your-own-bundle-{{ block.id }} .byob-add-btn:hover {
+    opacity: 0.9;
+  }
+  #build-your-own-bundle-{{ block.id }} .byob-btn-group {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  #build-your-own-bundle-{{ block.id }} .byob-remove-btn {
+    background-color: {{ remove_button_bg_color }};
+    color: {{ remove_button_text_color }};
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    flex: 1;
+    display: none;
+  }
+  #build-your-own-bundle-{{ block.id }} .byob-remove-btn:hover {
+    opacity: 0.9;
+  }
+  #build-your-own-bundle-{{ block.id }} .byob-add-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  #build-your-own-bundle-{{ block.id }} .byob-btn-group.has-item .byob-add-btn {
+    display: none;
+  }
+  #build-your-own-bundle-{{ block.id }} .byob-btn-group.has-item .byob-remove-btn {
+    display: block;
+  }
+  #byob-footer-{{ block.id }} {
+    background-color: {{ section_bg_color }};
+    color: {{ body_text_color }};
+  }
+  #byob-footer-{{ block.id }} .byob-footer-label {
+    color: {{ body_text_color }};
+  }
+  #byob-footer-{{ block.id }} .byob-footer-total {
+    color: {{ body_text_color }};
+  }
+  #byob-footer-{{ block.id }} .byob-checkout-btn {
+    background-color: {{ button_bg_color }};
+    color: {{ button_text_color }};
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+  #byob-footer-{{ block.id }} .byob-checkout-btn:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+</style>
+
+<div
+  class="byob-section"
+  id="build-your-own-bundle-{{ block.id }}"
+  data-slot-count="{{ slot_count }}"
+  data-bundle-price="{{ bundle_total_price }}"
+  data-bundle-code="{{ byob_bundle_code }}"
+  data-parent-variant-id="{{ byob_parent_variant }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="byob-header">
+    <div class="byob-step-indicator">
+      <span class="byob-step-dot"></span>
+    </div>
+    <h2 class="byob-title">{{ bundle_title }}</h2>
+    <p class="byob-subtitle">{{ bundle_subtitle }}</p>
+  </div>
+
+  <div class="byob-layout">
+
+    <div class="byob-slots" aria-label="Selected items">
+      {%- for i in (1..slot_count) -%}
+        <div class="byob-slot" data-slot="{{ i }}" aria-label="Slot {{ i }}">
+          <div class="byob-slot-thumb">
+            <span class="byob-slot-number">{{ i }}</span>
+            <button
+              class="byob-slot-remove"
+              aria-label="Remove item from slot {{ i }}"
+              data-slot="{{ i }}"
+              hidden
+            >✕</button>
+          </div>
+          <span class="byob-slot-label">Select Item {{ i }}</span>
+        </div>
+      {%- endfor -%}
+    </div>
+
+    <div class="byob-products" role="list">
+      {%- assign found_products = false -%}
+
+      {%- for metaobject in bundle_metaobjects -%}
+        {%- assign product_list = metaobject.products.value -%}
+        {%- if product_list == blank -%}{%- continue -%}{%- endif -%}
+
+        {%- for product in product_list -%}
+          {%- if product == blank -%}{%- continue -%}{%- endif -%}
+          {%- assign found_products = true -%}
+
+          {%- assign product_price = product.price -%}
+          {%- assign product_image = product.featured_image -%}
+          {%- assign product_title = product.title -%}
+          {%- assign product_id = product.id -%}
+          {%- assign product_variant_id = product.first_available_variant.id -%}
+
+          <div
+            class="byob-product-card"
+            role="listitem"
+            data-product-id="{{ product_id }}"
+            data-variant-id="{{ product_variant_id }}"
+            data-product-title="{{ product_title | escape }}"
+            data-product-price="{{ product_price }}"
+            data-product-image="{{ product_image | image_url: '200x200', crop: 'center' }}"
+          >
+            <div class="byob-card-image-wrap">
+              {%- if product_image != blank -%}
+                <img
+                  src="{{ product_image | image_url: '400x400', crop: 'center' }}"
+                  alt="{{ product_image.alt | default: product_title | escape }}"
+                  width="400"
+                  height="400"
+                  loading="lazy"
+                >
+              {%- else -%}
+                {{ 'product-1' | placeholder_svg_tag: 'byob-placeholder-img' }}
+              {%- endif -%}
+            </div>
+
+            <div class="byob-card-info">
+              <p class="byob-card-title" title="{{ product_title }}">
+                {{ product_title | truncate: 40 }}
+              </p>
+              <p class="byob-card-price">{{ product_price | money }}</p>
+            </div>
+
+            <div class="byob-btn-group">
+              <button
+                class="byob-add-btn"
+                data-product-id="{{ product_id }}"
+                aria-label="Add {{ product_title | escape }} to box"
+              >
+                ADD TO BOX
+              </button>
+              <button
+                class="byob-remove-btn"
+                data-product-id="{{ product_id }}"
+                aria-label="Remove {{ product_title | escape }} from box"
+              >
+                REMOVE
+              </button>
+            </div>
+          </div>
+
+        {%- endfor -%}
+      {%- endfor -%}
+
+      {%- if found_products == false -%}
+        <p class="byob-empty">No products found. Please add products to your <em>build_your_own_bundle</em> metaobjects.</p>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+<div class="byob-footer-bar" id="byob-footer-{{ block.id }}" aria-live="polite">
+  <div class="byob-footer-left">
+    <div class="byob-footer-icon">🎁</div>
+    <span class="byob-footer-label">{{ footer_label }}</span>
+  </div>
+  <div class="byob-footer-right">
+    <span class="byob-footer-total">
+Total: <strong id="byob-total-{{ block.id }}">{{ bundle_total_price | money }}</strong>
+    </span>
+    <button
+      class="byob-checkout-btn"
+      id="byob-checkout-{{ block.id }}"
+      disabled
+      aria-disabled="true"
+    >
+      {{ add_to_cart_label }}
+    </button>
+  </div>
+</div>
+
+{{ 'build-your-own-bundle.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'build-your-own-bundle.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Build Your Own Bundle",
+  "target": "section",
+  "settings": [
+
+    {
+      "type": "product",
+      "id": "byob_product",
+      "label": "Select BYOB Product"
+    },
+    {
+      "type": "header",
+      "content": "Text Settings"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Section Title",
+      "default": "Build Your Own Box"
+    },
+    {
+      "type": "range",
+      "id": "slot_count",
+      "label": "Number of slots",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "text",
+      "id": "add_to_cart_label",
+      "label": "Add to Cart Button Label",
+      "default": "Add to Cart"
+    },
+    {
+      "type": "text",
+      "id": "footer_label",
+      "label": "Footer Label Text",
+      "default": "BUILD YOUR OWN BOX"
+    },
+    {
+      "type": "number",
+      "id": "bundle_price",
+      "label": "Bundle Total Price (in cents, e.g. 59900 = ₹599)",
+      "default": 59900
+    },
+    {
+      "type": "header",
+      "content": "Colors - Background"
+    },
+    {
+      "type": "color",
+      "id": "section_bg_color",
+      "label": "Section Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Colors - Text"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Subheading Color",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "body_text_color",
+      "label": "Body Text Color (Labels, Footer)",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "card_title_color",
+      "label": "Product Title Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "card_price_color",
+      "label": "Product Price Color",
+      "default": "#FF6B6B"
+    },
+    {
+      "type": "header",
+      "content": "Colors - Buttons"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Button Background Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button Text Color",
+      "default": "#ffffff"
+    }
+  ]
+}
+{% endschema %}

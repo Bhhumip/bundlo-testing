@@ -1,0 +1,251 @@
+/* ============================================================
+   Volume Bundle — assets/volume-bundle.css
+   ============================================================ */
+
+.vb-section *,
+.vb-section *::before,
+.vb-section *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.vb-section {
+  --vb-bg:          #ffffff;
+  --vb-border:      #e4e4e4;
+  --vb-active:      #e8323f;
+  --vb-active-bg:   #fff5f5;
+  --vb-active-border: #e8323f;
+  --vb-save-bg:     #e8323f;
+  --vb-popular-bg:  #e8323f;
+  --vb-text:        #1a1a1a;
+  --vb-muted:       #888;
+  --vb-radius:      12px;
+  --vb-font:        'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --vb-trans:       0.2s ease;
+
+  font-family: var(--vb-font);
+  background: var(--vb-bg);
+  padding: 24px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.vb-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--vb-text);
+  margin-bottom: 4px;
+}
+.vb-subtitle {
+  font-size: 14px;
+  color: var(--vb-muted);
+  margin-bottom: 20px;
+}
+
+/* ── Tier list ───────────────────────────────────────────────── */
+.vb-tiers { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+
+/* ── Single tier ─────────────────────────────────────────────── */
+.vb-tier {
+  position: relative;
+  border: 2px solid var(--vb-border);
+  border-radius: var(--vb-radius);
+  background: var(--vb-bg);
+  overflow: hidden;
+  transition: border-color var(--vb-trans), background var(--vb-trans), box-shadow var(--vb-trans);
+  cursor: pointer;
+}
+.vb-tier:hover { border-color: #ccc; }
+.vb-tier.is-selected {
+  border-color: var(--vb-active-border);
+  background: var(--vb-active-bg);
+  box-shadow: 0 2px 12px rgba(232,50,63,0.15);
+}
+
+/* Popular badge */
+.vb-popular-badge {
+  position: absolute;
+  top: 0; right: 16px;
+  background: var(--vb-popular-bg);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 0 0 8px 8px;
+  letter-spacing: 0.3px;
+  z-index: 2;
+}
+
+/* Tier header row */
+.vb-tier-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  gap: 12px;
+}
+
+.vb-tier-radio-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  flex: 1;
+}
+
+/* Custom radio */
+.vb-radio {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--vb-border);
+  background: #fff;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: border-color var(--vb-trans);
+  position: relative;
+}
+.vb-radio::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--vb-active);
+  transition: transform var(--vb-trans);
+}
+.vb-radio:checked {
+  border-color: var(--vb-active);
+}
+.vb-radio:checked::after { transform: translate(-50%, -50%) scale(1); }
+
+.vb-tier-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--vb-text);
+}
+.vb-tier-save {
+  background: var(--vb-save-bg);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+}
+
+.vb-tier-prices {
+  text-align: right;
+  flex-shrink: 0;
+}
+.vb-tier-price-now {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--vb-text);
+}
+.vb-tier-price-was {
+  display: block;
+  font-size: 12px;
+  color: var(--vb-muted);
+  text-decoration: line-through;
+}
+
+/* ── Slots (variant selectors) ───────────────────────────────── */
+.vb-tier-slots {
+  padding: 0 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid rgba(232,50,63,0.15);
+  margin-top: 0;
+}
+
+.vb-slot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.vb-slot-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--vb-muted);
+  width: 24px;
+  flex-shrink: 0;
+}
+.vb-slot-selectors {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+.vb-slot-option {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 80px;
+}
+.vb-slot-option label {
+  font-size: 11px;
+  color: var(--vb-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.vb-slot-select {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1.5px solid var(--vb-border);
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--vb-text);
+  background: #fff;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+  transition: border-color var(--vb-trans);
+}
+.vb-slot-select:focus { outline: none; border-color: var(--vb-active); }
+
+/* Color swatch inside option label */
+.vb-color-dot {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.15);
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* ── Add to cart button ──────────────────────────────────────── */
+.vb-atc-btn {
+  width: 100%;
+  padding: 16px;
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  border-radius: var(--vb-radius);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--vb-trans), opacity var(--vb-trans), transform var(--vb-trans);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+}
+.vb-atc-btn:hover:not(:disabled) {
+  background: #333;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+}
+.vb-atc-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; transform: none; }
+
+@media (max-width: 480px) {
+  .vb-section { padding: 16px; }
+  .vb-slot-selectors { flex-direction: column; }
+}

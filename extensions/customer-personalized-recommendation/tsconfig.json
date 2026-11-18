@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
+    "target": "ES2020",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "checkJs": false,
+    "allowJs": true,
+    // "types": [
+    //   "@shopify/ui-extensions"
+    // ],
+    "lib": [
+      "ES2020",
+      "DOM"
+    ]
+  },
+  "include": [
+    "./src",
+    "./shopify.d.ts"
+  ]
+}

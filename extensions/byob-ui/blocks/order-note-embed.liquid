@@ -1,0 +1,18 @@
+{% comment %} Order Note config now sourced from shop.metafields.custom.order_note_widget, written by the app's Customize form (app.Customize.$widget.jsx). Previously driven by theme-editor block.settings (heading, show_cart, show_drawer, cart_position, drawer_position) — that schema is retired; see git history for the prior version. {% endcomment %}
+{{ 'order-note.js' | asset_url | script_tag }}
+
+{% assign metafield_settings = shop.metafields.custom.order_note_widget.value %}
+
+{% if metafield_settings %}
+<script>
+  window.orderNoteSettings = {{ metafield_settings | json }};
+</script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Order Note",
+  "target": "body",
+  "settings": []
+}
+{% endschema %}

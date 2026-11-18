@@ -1,0 +1,11 @@
+[33m8604a16[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mbundles-app[m[33m, [m[1;31morigin/bundles-app[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: reset: moving to HEAD~1
+[33m3420302[m HEAD@{1}: commit: bundle-builder-added
+[33m8604a16[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mbundles-app[m[33m, [m[1;31morigin/bundles-app[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{2}: pull: Fast-forward
+[33m0dfb9a2[m[33m ([m[1;32mswitch[m[33m)[m HEAD@{3}: checkout: moving from main to bundles-app
+[33m93b6cad[m[33m ([m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m HEAD@{4}: checkout: moving from upsell-feature to main
+[33ma40a4f8[m[33m ([m[1;32mupsell-feature[m[33m)[m HEAD@{5}: reset: moving to HEAD
+[33ma40a4f8[m[33m ([m[1;32mupsell-feature[m[33m)[m HEAD@{6}: commit: updated persistence code
+[33ma7ce6fb[m HEAD@{7}: reset: moving to origin/upsell-feature
+[33m8756df2[m HEAD@{8}: pull origin upsell-feature: Merge made by the 'ort' strategy.
+[33m0dfb9a2[m[33m ([m[1;32mswitch[m[33m)[m HEAD@{9}: checkout: moving from bundles-app to upsell-feature
+[33m0dfb9a2[m[33m ([m[1;32mswitch[m[33m)[m HEAD@{10}: clone: from https://github.com/Bhhumip/Discount-CartTransform.git

@@ -1,0 +1,17 @@
+api_version = "2025-10"
+
+
+
+[[extensions]]
+# Change the merchant-facing name of the extension in locales/en.default.json
+name = "t:name"
+handle = "sidekick-app-data"
+type = "ui_extension"
+uid = "0ad43ca1-79bc-af7a-d276-eeb58da6a5757f39d374"
+description = "Access Bundlo bundle data, including bundle details, bundle statistics, revenue, orders, units sold, analytics, bundle-level performance, revenue rankings, and performance by bundle type."
+
+[[extensions.targeting]]
+module = "./src/index.js"
+target = "admin.app.tools.data"
+tools = "./tools.json"
+instructions = "./instructions.md"

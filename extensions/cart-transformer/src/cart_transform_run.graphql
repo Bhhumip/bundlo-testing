@@ -1,0 +1,62 @@
+query Input {
+  cart {
+    lines {
+      id
+      quantity
+      fspAutoGift: attribute(key: "fspAutoGift") {
+        value
+      }
+      freeGift: attribute(key: "_free_gift") {
+        value
+      }
+      donationWidget: attribute(key: "_donation_widget") { value }   # Donation attributes
+      donationAmount: attribute(key: "_donation_amount") { value }   # Donation attributes
+
+      # Per-line cost; you can sum these in the function if you need a subtotal
+      cost {
+        subtotalAmount {
+          amount
+        }
+      }
+
+      # BYOB attributes
+      byobParent: attribute(key: "_byob_parent") {
+        value
+      }
+
+      byobCode: attribute(key: "_byob_code") {
+        value
+      }
+
+      byobChildLines: attribute(key: "_byob_child_lines") {
+        value
+      }
+
+      merchandise {
+        __typename
+        ... on ProductVariant {
+          id
+          product {
+            bundlePrice: metafield(namespace: "bundle", key: "price") {
+              value
+            }
+          }
+        }
+      }
+    }
+  }
+  shop {
+    metafield(
+      namespace: "$app:upsell-discounts"
+      key: "cart-transform-configuration"
+    ) {
+      value
+    }
+    progressBarConfig: metafield(namespace: "$app", key: "progress_bar") {
+      value
+    }
+     donationConfig: metafield(namespace: "$app", key: "donations_config") {  # new
+      value
+    }
+  }
+}

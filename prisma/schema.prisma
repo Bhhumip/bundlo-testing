@@ -1,0 +1,587 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
+// enough when changing adapters.
+// See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id                  String    @id
+  shop                String
+  state               String
+  isOnline            Boolean   @default(false)
+  scope               String?
+  expires             DateTime?
+  accessToken         String
+  userId              BigInt?
+  firstName           String?
+  lastName            String?
+  email               String?
+  accountOwner        Boolean   @default(false)
+  locale              String?
+  collaborator        Boolean?  @default(false)
+  emailVerified       Boolean?  @default(false)
+  refreshToken        String?
+  refreshTokenExpires DateTime?
+}
+
+// -----------------------------------------------------------------------
+// Bundle
+// One row per bundle a merchant creates.
+// status:       DRAFT | ACTIVE | ARCHIVED
+// type:         FIXED | MIX_MATCH | VOLUME 
+// discountType: PERCENTAGE | FIXED_AMOUNT | FIXED_PRICE
+// -----------------------------------------------------------------------
+model Bundle {
+  id   String @id @default(cuid())
+  shop String
+
+  title       String
+  description String?
+  bundleCode  String? @unique
+
+  // DRAFT = not yet live, ACTIVE = live on storefront, ARCHIVED = hidden
+  status String @default("DRAFT")
+
+  type BundleType @default(FIXED)
+
+  // The Shopify product that gets created for this bundle
+  // Filled in after productBundleCreate succeeds
+
+  shopifyProductHandle String?
+  shopifyVariantId     String?
+  // Discount settings
+  discountType         String  @default("PERCENTAGE")
+  discountValue        Float   @default(0)
+  fixedPrice           Float? // only used when discountType = FIXED_PRICE
+
+  // Availability — updated by webhook when a component goes out of stock
+  available    Boolean @default(true)
+  availableQty Int?
+
+  // Relations
+  components   BundleComponent[]
+  revenueDaily BundleRevenueDaily[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  //mix&match fields
+  minSelectCount Int? // Mix & Match — min items customer must pick
+  maxSelectCount Int? // Mix & Match — max items customer can pick
+  volumeTiers    VolumeTier[]
+
+  // new addition
+  tags             String?
+  price            Float?
+  mediaUrl         String?
+  shopifyProductId String?
+  endsAt           DateTime?
+
+  // Multivariant fields
+  isMulti       Boolean @default(false) // false = single product, true = multi
+  productCount  Int? // exact number of products required (multi only)
+  bundleOptions String? // JSON: shared options after products are added
+  variantLimit  Int?
+}
+
+// ── ENUM ─────────────────────────────────────────────────────────────────────
+
+enum BundleType {
+  FIXED
+  MIX_MATCH
+  VOLUME
+  BYOB
+  MULTIVARIANT
+}
+
+// ── VolumeTier MODEL ─────────────────────────────────────────────────────────────────
+
+model VolumeTier {
+  id            String   @id @default(cuid())
+  bundle        Bundle   @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  bundleId      String
+  minQuantity   Int // e.g. 2 → "buy 2+"
+  discountType  String // "PERCENTAGE" | "FIXED_AMOUNT"
+  discountValue Float // e.g. 10 for 10% or $10
+  createdAt     DateTime @default(now())
+}
+
+// -----------------------------------------------------------------------
+// BundleComponent
+// Each product/variant that makes up a bundle.
+// One Bundle has many BundleComponents.
+// Deleting a bundle deletes its components automatically (Cascade).
+// -----------------------------------------------------------------------
+model BundleComponent {
+  id String @id @default(cuid())
+
+  // Foreign key to Bundle
+  bundleId String
+  bundle   Bundle @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+
+  // Shopify product info — stored here so we don't need to re-fetch from Shopify
+  shopifyProductId    String
+  shopifyProductTitle String
+  shopifyProductImage String? // URL of the product image
+
+  // null means "any variant" — for fixed bundles we always store the selected variant
+  shopifyVariantId    String?
+  shopifyVariantTitle String? // e.g. "Red / Large"
+  shopifyVariantPrice Float? // price at time of bundle creation
+  shopifySku          String?
+
+  quantity   Int     @default(1)
+  isRequired Boolean @default(true)
+  position   Int     @default(0) // display order in the widget
+
+  createdAt       DateTime @default(now())
+  //Multivariant field
+  selectedOptions String? // JSON: {"Colour":"Red","Size":"XL"} per variant combination
+  options         String? // JSON string: product option definitions [{name, values[]}]
+  variants        String? // JSON string: product variants array
+
+  @@index([bundleId])
+}
+
+// -----------------------------------------------------------------------
+// ShopSetting
+// One row per shop — stores the merchant's widget appearance settings
+// and discount defaults as a JSON blob.
+// Used by app/routes/app.settings.jsx
+// -----------------------------------------------------------------------
+model ShopSetting {
+  id   String @id @default(cuid())
+  shop String @unique // one settings row per shop
+
+  // JSON blob — parsed in app/routes/app.settings.jsx
+  // Example: { "widgetTitle": "Complete the bundle", "showSavings": true }
+  settings String @default("{}")
+
+  //reviews app token
+  judgemePublicToken  String?
+  judgemePrivateToken String?
+  googlePlaceId       String? // nullable — not all shops use Google reviews
+  googleApiKey        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProcessedWebhook {
+  id        String   @id @default(cuid())
+  shop      String
+  eventId   String   @unique
+  topic     String
+  createdAt DateTime @default(now())
+}
+
+model BundleStats {
+  id            String   @id @default(cuid())
+  shop          String
+  bundleId      String   @unique
+  totalRevenue  Float    @default(0)
+  totalQuantity Int      @default(0)
+  totalOrders   Int      @default(0)
+  updatedAt     DateTime @updatedAt
+
+  @@index([shop])
+}
+
+// Stores bundle revenue by day so rolling 30-day revenue limits
+model BundleRevenueDaily {
+  id        String   @id @default(cuid())
+  shop      String
+  bundleId  String
+  date      DateTime
+  revenue   Float    @default(0)
+  orders    Int      @default(0)
+  quantity  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bundle Bundle @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+
+  @@unique([bundleId, date])
+  @@index([shop, date])
+}
+
+/// -----------------------------------------------------------------------
+/// Upsell-only schema additions for SQLite + Prisma
+/// Safe version for current app setup:
+/// - Uses String instead of enums
+/// - Uses String instead of Json for flexible payloads
+/// -----------------------------------------------------------------------
+
+model UpsellFunnel {
+  id   String @id @default(cuid())
+  shop String
+
+  title       String
+  description String?
+
+  /// PDP | CART | CHECKOUT | POST_PURCHASE | ACCOUNT
+  surface String
+
+  /// DRAFT | ACTIVE | ARCHIVED
+  status String @default("DRAFT")
+
+  priority Int       @default(0)
+  startAt  DateTime?
+  endAt    DateTime?
+
+  // widget     UpsellWidget?
+  targets    UpsellFunnelTarget[]
+  conditions UpsellFunnelCondition[]
+  offers     UpsellOffer[]
+  events     UpsellEvent[]
+  stats      UpsellStat[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([shop])
+  @@index([shop, surface, status])
+}
+
+model UpsellWidget {
+  id String @id @default(cuid())
+
+  // Funnel removed — widget now belongs directly to a shop and is identified by widgetKey
+  shop      String
+  widgetKey String // e.g. "frequently_bought_together"
+
+  widgetType  String
+  placement   String
+  displayMode String
+
+  headline     String
+  subheading   String?
+  ctaLabel     String
+  internalName String
+  notes        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // one row per widget per shop
+  @@unique([shop, widgetKey])
+  @@index([shop])
+}
+
+model UpsellFunnelTarget {
+  id String @id @default(cuid())
+
+  funnelId String
+  funnel   UpsellFunnel @relation(fields: [funnelId], references: [id], onDelete: Cascade)
+
+  /// PRODUCT | COLLECTION | ALL_PRODUCTS | CART_VALUE | CUSTOM
+  targetType String
+  targetId   String?
+  include    Boolean @default(true)
+
+  minCartValue Float?
+  maxCartValue Float?
+
+  createdAt DateTime @default(now())
+
+  @@index([funnelId])
+  @@index([targetType, targetId])
+}
+
+model UpsellFunnelCondition {
+  id String @id @default(cuid())
+
+  funnelId String
+  funnel   UpsellFunnel @relation(fields: [funnelId], references: [id], onDelete: Cascade)
+
+  /// CUSTOMER_TAG | MARKET | DEVICE | NEW_CUSTOMER | RETURNING_CUSTOMER | SCRIPT
+  kind String
+
+  /// EQUALS | NOT_EQUALS | IN | NOT_IN | GT | GTE | LT | LTE | EXISTS
+  operator String
+
+  /// store plain string or JSON string depending on condition
+  value String?
+
+  createdAt DateTime @default(now())
+
+  @@index([funnelId])
+}
+
+model UpsellOffer {
+  id String @id @default(cuid())
+
+  funnelId String
+  funnel   UpsellFunnel @relation(fields: [funnelId], references: [id], onDelete: Cascade)
+
+  title       String
+  internalKey String?
+  stepOrder   Int     @default(0)
+
+  /// ADD_ON | BUNDLE | VOLUME | BOGO | GWP | SUBSCRIPTION | CUSTOM
+  kind String
+
+  description     String?
+  customerHeading String?
+  customerBody    String?
+
+  maxAcceptances Int?
+  isPrimary      Boolean @default(false)
+
+  items         UpsellOfferItem[]
+  discountRules UpsellDiscountRule[]
+  events        UpsellEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([funnelId])
+  @@index([kind])
+}
+
+model UpsellOfferItem {
+  id String @id @default(cuid())
+
+  offerId String
+  offer   UpsellOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
+
+  /// PRIMARY | ADD_ON | BUNDLE_COMPONENT | BUY | GET | GIFT
+  role String
+
+  shopifyProductId String
+  shopifyVariantId String?
+
+  quantity Int @default(1)
+  position Int @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([offerId])
+  @@index([shopifyProductId])
+}
+
+model UpsellDiscountRule {
+  id String @id @default(cuid())
+
+  offerId String
+  offer   UpsellOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
+
+  /// FUNCTION | ADMIN_DISCOUNT | NO_DISCOUNT
+  method String
+
+  /// PERCENTAGE | FIXED_AMOUNT | FIXED_PRICE | BOGO | FREE_GIFT | TIERED
+  discountType String
+
+  value    Float?
+  currency String?
+
+  minQty   Int?
+  maxQty   Int?
+  minSpend Float?
+  maxSpend Float?
+
+  /// JSON string: [{"min":2,"percent":5},{"min":3,"percent":10}]
+  tiersJson String?
+
+  /// JSON string for Function/admin discount payload
+  functionConfig String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([offerId])
+  @@index([discountType])
+}
+
+model UpsellEvent {
+  id   String @id @default(cuid())
+  shop String
+
+  funnelId String
+  funnel   UpsellFunnel @relation(fields: [funnelId], references: [id], onDelete: Cascade)
+
+  offerId String?
+  offer   UpsellOffer? @relation(fields: [offerId], references: [id], onDelete: SetNull)
+
+  /// IMPRESSION | CLICK | ACCEPT | REJECT
+  type String
+
+  /// PDP | CART | CHECKOUT | POST_PURCHASE | ACCOUNT
+  surface String
+
+  orderId    String?
+  checkoutId String?
+
+  value    Float?
+  currency String?
+
+  /// JSON string for device/url/context data
+  context String?
+
+  createdAt DateTime @default(now())
+
+  @@index([shop])
+  @@index([funnelId])
+  @@index([offerId])
+  @@index([type, surface])
+}
+
+model UpsellStat {
+  id   String @id @default(cuid())
+  shop String
+
+  funnelId String
+  funnel   UpsellFunnel @relation(fields: [funnelId], references: [id], onDelete: Cascade)
+
+  date DateTime
+
+  impressions Int @default(0)
+  clicks      Int @default(0)
+  accepts     Int @default(0)
+  rejects     Int @default(0)
+
+  revenue  Float  @default(0)
+  currency String @default("USD")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([shop, funnelId, date])
+  @@index([shop])
+  @@index([funnelId, date])
+}
+
+// -----------------------------------------------------------------------
+// ProgressBarConfig
+// One row per shop — stores the entire progress bar widget config
+// as a JSON blob so the admin survives reloads.
+// -----------------------------------------------------------------------
+model ProgressBarConfig {
+  id        String   @id @default(cuid())
+  shop      String   @unique
+  config    String   @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// This is the Judge.me product ID cache table.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model JudgemeProduct {
+  id String @id @default(cuid())
+
+  // Which shop this belongs to
+  shop String
+
+  // The numeric Shopify product ID — NOT the GID format
+  // GID format:  "gid://shopify/Product/8765432100"  
+  // Numeric:     "8765432100"                        
+  shopifyProductId String
+
+  // The internal ID Judge.me uses for this product in their own database
+  // Completely different from Shopify's ID — Judge.me assigns their own
+  judgemeProductId Int
+
+  // When did we cache this? Used to decide if cache is stale.
+  // We treat entries older than 7 days as stale and re-fetch from Judge.me.
+  cachedAt DateTime @default(now())
+
+  @@unique([shop, shopifyProductId])
+  // Index on shop so lookups by shop are fast
+  @@index([shop])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// new model for caching the aggregated review response
+/// ─────────────────────────────────────────────────────────────────────────────
+
+model ReviewCache {
+  id   String @id @default(cuid())
+  shop String @unique // one cache entry per shop
+
+  // The processed testimonials JSON as a string
+  // Stores the full array of NormalizedReview objects  API route 
+  testimonialsJson String @default("[]")
+
+  // Aggregate stats — stored flat so read them without parsing JSON
+  averageRating Float @default(0)
+  totalCount    Int   @default(0)
+
+  // When was this cache last refreshed?
+  // API route checks: if now() - cachedAt > 6 hours → refresh from Judge.me
+  cachedAt DateTime @default(now())
+
+  @@index([shop])
+}
+
+// Tracks trial state and a locally-cached view of the shop's subscription,
+// so the billing page can still show something sensible if a live
+// billing.check() call to Shopify fails.
+
+model ShopPlan {
+  id   String @id @default(cuid())
+  shop String @unique
+
+  // Trial tracking — set once, on first load, and never overwritten after.
+  trialStartedAt  DateTime?
+  trialLengthDays Int       @default(7)
+
+  // Locally-cached subscription stateapp/models/shopPlans.server.js
+  status          String    @default("TRIALING")
+  currentPlan     String?
+  shopifyPlanName String?
+  subscriptionId  String?
+  currentPeriodEnd DateTime?
+
+  // Pending plan change
+  pendingPlan          String?
+  pendingBillingPeriod String?
+  pendingEffectiveAt   DateTime?
+  pendingChangeType    String?
+
+  // Revenue-limit tracking
+  revenueLimitExceededAt         DateTime?
+  revenueGracePeriodEndsAt       DateTime?
+  revenueLimitNotificationSentAt DateTime?
+
+  // Plan expiry email tracking
+  planExpiryNotificationSentAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//AWS SES
+
+model Shop {
+  id                 String    @id @default(cuid())
+  shop               String    @unique
+  email              String?
+  welcomeEmailSentAt DateTime?
+  createdAt          DateTime  @default(now())
+}
+
+model EmailLog {
+  id           String   @id @default(cuid())
+  shop         String
+  event        String // "install" or "uninstall"
+  to           String
+  subject      String
+  status       String   @default("pending") // pending, sent, failed
+  messageId    String?
+  errorMessage String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([shop])
+}

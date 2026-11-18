@@ -1,0 +1,57 @@
+# FBT Discount — Input Query
+# The function only needs to know:
+# 1. Which widget added the cart line
+# 2. The cart line amount/quantity
+# 3. The automatic discount's function configuration
+
+query FbtDiscountInput {
+  cart {
+    lines {
+      id
+
+      quantity
+
+      upsellWidget: attribute(
+        key: "_upsell_widget"
+      ) {
+        value
+      }
+
+      cost {
+        subtotalAmount {
+          amount
+        }
+      }
+
+      merchandise {
+        __typename
+
+        ... on ProductVariant {
+          id
+
+          product {
+            id
+
+            fbtEligible: metafield(
+              namespace: "custom"
+              key: "fbt_eligible"
+            ) {
+              value
+            }
+          }
+        }
+      }
+    }
+  }
+
+  discount {
+    discountClasses
+
+    metafield(
+      namespace: "$app"
+      key: "function-configuration"
+    ) {
+      jsonValue
+    }
+  }
+}

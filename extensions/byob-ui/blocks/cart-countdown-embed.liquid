@@ -1,0 +1,93 @@
+{{ 'cart-countdown.css' | asset_url | stylesheet_tag }}
+
+{% assign metafield_settings = shop.metafields.custom.urgency_timer_widget.value %}
+
+{% if metafield_settings.enabled %}
+
+<script>
+
+  const metafieldSettings =
+    {{ metafield_settings | json }};
+
+  window.cartCountdownSettings = {
+
+    mainMessage:
+      metafieldSettings.mainMessage,
+
+    cartMessage:
+      metafieldSettings.itemCartMessage,
+
+    countdownTime:
+      metafieldSettings.countdownDuration,
+
+    extendedHeading:
+      metafieldSettings.extendedTimeHeading,
+
+    extendedMessage:
+      metafieldSettings.extendedTimeMessage,
+
+    extendedTime:
+      metafieldSettings.extendedTime,
+
+    expireAction:
+      metafieldSettings.expirationBehavior,
+
+    textColor:
+      metafieldSettings.messageTextColor,
+
+    bgColor:
+      metafieldSettings.backgroundColor,
+
+    timerColor:
+      metafieldSettings.timerColor,
+
+    fontSize:
+      metafieldSettings.fontSize,
+
+    fontBold:
+      metafieldSettings.fontBold,
+
+    borderStyle:
+      metafieldSettings.borderStyle,
+
+    borderWidth:
+      metafieldSettings.borderWidth,
+
+    borderRadius:
+      metafieldSettings.borderRadius,
+
+    borderColor:
+      metafieldSettings.borderColor,
+
+    padding:
+      metafieldSettings.padding,
+
+    margin:
+      metafieldSettings.margin,
+
+    cartTopPosition:
+      metafieldSettings.cartPageTopPosition,
+
+    cartLeftPosition:
+      metafieldSettings.cartPageLeftPosition,
+
+    customCSS:
+      metafieldSettings.customCSS
+
+  };
+
+</script>
+
+{% endif %}
+
+<script src="{{ 'cart-countdown.js' | asset_url }}" defer></script>
+
+
+{% schema %}
+  {
+    "name": "Cart Countdown Timer",
+    "target": "body",
+    "settings": [
+    ]
+  }
+{% endschema %}

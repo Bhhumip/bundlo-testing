@@ -1,0 +1,254 @@
+{% comment %} <div>
+  {{ "thumbs-up.png" | asset_url | image_tag }}
+</div>
+
+{% schema %}
+{
+  "name": "Mix&Match Bundle Widget",
+  "target": "section",
+  "settings": []
+} {% endcomment %}
+
+{%- liquid
+  assign bundle_title      = block.settings.title | default: 'Build Your Own Bundle'
+  assign add_to_cart_label = block.settings.add_to_cart_label | default: 'Add to Cart'
+  assign min_items         = block.settings.min_items | default: 3
+  assign max_items         = block.settings.max_items | default: 6
+
+  if block.settings.subtitle != blank
+    assign bundle_subtitle = block.settings.subtitle
+  else
+    assign bundle_subtitle = 'Pick your favorites and save more the more you add!'
+  endif
+
+  assign tier1_qty      = block.settings.tier1_qty | default: 3
+  assign tier1_discount = block.settings.tier1_discount | default: 35
+  assign tier2_qty      = block.settings.tier2_qty | default: 4
+  assign tier2_discount = block.settings.tier2_discount | default: 40
+  assign tier3_qty      = block.settings.tier3_qty | default: 5
+  assign tier3_discount = block.settings.tier3_discount | default: 45
+  assign tier4_qty      = block.settings.tier4_qty | default: 6
+  assign tier4_discount = block.settings.tier4_discount | default: 50
+
+  comment
+    Read component product IDs from Bundlo metafields on the current product.
+    The metafield namespace is 'bundlo', key is 'component_product_ids' (JSON array of GIDs).
+  endcomment
+  assign raw_component_ids = product.metafields.bundlo.component_product_ids.value
+-%}
+
+<div
+  class="mamb-section"
+  id="mix-and-match-bundle-{{ block.id }}"
+  data-min-items="{{ min_items }}"
+  data-max-items="{{ max_items }}"
+  data-tier1-qty="{{ tier1_qty }}"       data-tier1-discount="{{ tier1_discount }}"
+  data-tier2-qty="{{ tier2_qty }}"       data-tier2-discount="{{ tier2_discount }}"
+  data-tier3-qty="{{ tier3_qty }}"       data-tier3-discount="{{ tier3_discount }}"
+  data-tier4-qty="{{ tier4_qty }}"       data-tier4-discount="{{ tier4_discount }}"
+  data-add-label="{{ add_to_cart_label | escape }}"
+  {{ block.shopify_attributes }}
+>
+
+  {%- comment %} ── Header ── {%- endcomment %}
+  <div class="mamb-header">
+    <h1 class="mamb-title">{{ bundle_title }}</h1>
+    <p class="mamb-subtitle">{{ bundle_subtitle }}</p>
+
+    <div class="mamb-tiers">
+      <div class="mamb-tier" data-tier-qty="{{ tier1_qty }}">
+        <span class="mamb-tier-count">{{ tier1_qty }} items</span>
+        <strong class="mamb-tier-pct">{{ tier1_discount }}% OFF</strong>
+      </div>
+      <div class="mamb-tier" data-tier-qty="{{ tier2_qty }}">
+        <span class="mamb-tier-count">{{ tier2_qty }} items</span>
+        <strong class="mamb-tier-pct">{{ tier2_discount }}% OFF</strong>
+      </div>
+      <div class="mamb-tier" data-tier-qty="{{ tier3_qty }}">
+        <span class="mamb-tier-count">{{ tier3_qty }} items</span>
+        <strong class="mamb-tier-pct">{{ tier3_discount }}% OFF</strong>
+      </div>
+      <div class="mamb-tier" data-tier-qty="{{ tier4_qty }}">
+        <span class="mamb-tier-count">{{ tier4_qty }} items</span>
+        <strong class="mamb-tier-pct">{{ tier4_discount }}% OFF</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="mamb-layout">
+
+    {%- comment %} ── Left: product grid ── {%- endcomment %}
+    <div class="mamb-products-col">
+      <div class="mamb-products" role="list">
+
+        {%- comment %}
+          Loop through component product GIDs from the Bundlo metafield.
+          Each GID looks like: gid://shopify/Product/1234567890
+          We extract the numeric ID and look up the product.
+        {%- endcomment %}
+
+        {%- assign found = false -%}
+
+        {%- if raw_component_ids != blank -%}
+          {%- for gid in raw_component_ids -%}
+            {%- assign bundle_product = all_products[gid] -%}
+
+            {%- if bundle_product == blank -%}{%- continue -%}{%- endif -%}
+            {%- assign found = true -%}
+
+            {%- assign pid    = bundle_product.id -%}
+            {%- assign pvid   = bundle_product.first_available_variant.id -%}
+            {%- assign pimg   = bundle_product.featured_image -%}
+            {%- assign ptitle = bundle_product.title -%}
+            {%- assign pprice = bundle_product.price -%}
+
+            <div
+              class="mamb-card"
+              role="listitem"
+              data-product-id="{{ pid }}"
+              data-variant-id="{{ pvid }}"
+              data-title="{{ ptitle | escape }}"
+              data-price="{{ pprice }}"
+              data-image="{{ pimg | image_url: '160x160', crop: 'center' }}"
+            >
+              <div class="mamb-card-img-wrap">
+                {%- if pimg != blank -%}
+                  <img
+                    src="{{ pimg | image_url: '400x400', crop: 'center' }}"
+                    alt="{{ pimg.alt | default: ptitle | escape }}"
+                    width="400" height="400" loading="lazy"
+                  >
+                {%- else -%}
+                  {{ 'product-1' | placeholder_svg_tag: 'mamb-placeholder' }}
+                {%- endif -%}
+                <span class="mamb-card-badge" hidden></span>
+              </div>
+              <div class="mamb-card-body">
+                <p class="mamb-card-title">{{ ptitle }}</p>
+                <p class="mamb-card-prices">
+                  <span class="mamb-price-now">{{ pprice | money }}</span>
+                  <span class="mamb-price-was">{{ pprice | money }}</span>
+                </p>
+              </div>
+              <button class="mamb-add-btn" data-product-id="{{ pid }}">
+                ADD TO BUNDLE
+              </button>
+            </div>
+
+          {%- endfor -%}
+        {%- endif -%}
+
+        {%- comment %} Fallback: try metaobjects if metafield is blank {%- endcomment %}
+        {%- unless found -%}
+          {%- assign bundle_metaobjects = shop.metaobjects.build_your_own_bundle.values -%}
+          {%- for metaobject in bundle_metaobjects -%}
+            {%- assign product_list = metaobject.products.value -%}
+            {%- if product_list == blank -%}{%- continue -%}{%- endif -%}
+            {%- for bp in product_list -%}
+              {%- if bp == blank -%}{%- continue -%}{%- endif -%}
+              {%- assign found = true -%}
+              <div
+                class="mamb-card"
+                role="listitem"
+                data-product-id="{{ bp.id }}"
+                data-variant-id="{{ bp.first_available_variant.id }}"
+                data-title="{{ bp.title | escape }}"
+                data-price="{{ bp.price }}"
+                data-image="{{ bp.featured_image | image_url: '160x160', crop: 'center' }}"
+              >
+                <div class="mamb-card-img-wrap">
+                  {%- if bp.featured_image != blank -%}
+                    <img src="{{ bp.featured_image | image_url: '400x400', crop: 'center' }}" alt="{{ bp.title | escape }}" width="400" height="400" loading="lazy">
+                  {%- else -%}
+                    {{ 'product-1' | placeholder_svg_tag: 'mamb-placeholder' }}
+                  {%- endif -%}
+                  <span class="mamb-card-badge" hidden></span>
+                </div>
+                <div class="mamb-card-body">
+                  <p class="mamb-card-title">{{ bp.title }}</p>
+                  <p class="mamb-card-prices">
+                    <span class="mamb-price-now">{{ bp.price | money }}</span>
+                    <span class="mamb-price-was">{{ bp.price | money }}</span>
+                  </p>
+                </div>
+                <button class="mamb-add-btn" data-product-id="{{ bp.id }}">ADD TO BUNDLE</button>
+              </div>
+            {%- endfor -%}
+          {%- endfor -%}
+        {%- endunless -%}
+
+        {%- unless found -%}
+          <p class="mamb-empty">No products found. Please add products in the Bundlo app or metaobjects.</p>
+        {%- endunless -%}
+
+      </div>
+    </div>
+
+    {%- comment %} ── Right: sticky sidebar ── {%- endcomment %}
+    <aside class="mamb-sidebar" id="mamb-sidebar-{{ block.id }}" aria-label="My Bundle">
+      <div class="mamb-sidebar-inner">
+        <div class="mamb-sidebar-head">
+          <h2 class="mamb-sidebar-title">My Bundle</h2>
+          <span class="mamb-sidebar-count" id="mamb-count-{{ block.id }}">0</span>
+        </div>
+
+        <ul class="mamb-bundle-list" id="mamb-list-{{ block.id }}">
+          <li class="mamb-bundle-empty-msg">Add items to build your bundle</li>
+        </ul>
+
+        <div class="mamb-next-tier" id="mamb-next-tier-{{ block.id }}" hidden>
+          <p class="mamb-next-tier-msg" id="mamb-nudge-{{ block.id }}"></p>
+        </div>
+
+        <div class="mamb-tier-dots" id="mamb-dots-{{ block.id }}">
+          <button class="mamb-dot" data-tier-qty="{{ tier1_qty }}">{{ tier1_discount }}% OFF</button>
+          <button class="mamb-dot" data-tier-qty="{{ tier2_qty }}">{{ tier2_discount }}% OFF</button>
+          <button class="mamb-dot" data-tier-qty="{{ tier3_qty }}">{{ tier3_discount }}% OFF</button>
+          <button class="mamb-dot" data-tier-qty="{{ tier4_qty }}">{{ tier4_discount }}% OFF</button>
+        </div>
+
+        <button class="mamb-checkout-btn" id="mamb-checkout-{{ block.id }}" disabled>
+          <span class="mamb-checkout-label">{{ add_to_cart_label }}</span>
+          <span class="mamb-checkout-prices">
+            <span class="mamb-checkout-now" id="mamb-total-now-{{ block.id }}"></span>
+            <span class="mamb-checkout-was" id="mamb-total-was-{{ block.id }}"></span>
+          </span>
+        </button>
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+{{ 'mix-and-match-bundle.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'mix-and-match-bundle.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Mix & Match Bundle",
+  "target": "section",
+  "settings": [
+    { "type": "text",  "id": "title",    "label": "Title",    "default": "Build Your Own Bundle" },
+    { "type": "text",  "id": "subtitle", "label": "Subtitle (leave blank for default)" },
+    { "type": "range", "id": "min_items","label": "Min items to unlock discount", "min": 1, "max": 6,  "step": 1, "default": 3 },
+    { "type": "range", "id": "max_items","label": "Max items allowed",            "min": 2, "max": 12, "step": 1, "default": 6 },
+    { "type": "header","content": "Discount Tiers" },
+    { "type": "range", "id": "tier1_qty",      "label": "Tier 1 – items",  "min": 1, "max": 10, "step": 1, "default": 3 },
+    { "type": "range", "id": "tier1_discount", "label": "Tier 1 – % off",  "min": 1, "max": 80, "step": 1, "default": 35 },
+    { "type": "range", "id": "tier2_qty",      "label": "Tier 2 – items",  "min": 1, "max": 10, "step": 1, "default": 4 },
+    { "type": "range", "id": "tier2_discount", "label": "Tier 2 – % off",  "min": 1, "max": 80, "step": 1, "default": 40 },
+    { "type": "range", "id": "tier3_qty",      "label": "Tier 3 – items",  "min": 1, "max": 10, "step": 1, "default": 5 },
+    { "type": "range", "id": "tier3_discount", "label": "Tier 3 – % off",  "min": 1, "max": 80, "step": 1, "default": 45 },
+    { "type": "range", "id": "tier4_qty",      "label": "Tier 4 – items",  "min": 1, "max": 10, "step": 1, "default": 6 },
+    { "type": "range", "id": "tier4_discount", "label": "Tier 4 – % off",  "min": 1, "max": 80, "step": 1, "default": 50 },
+    { "type": "text",  "id": "add_to_cart_label", "label": "Add to Cart label", "default": "Add to Cart" }
+  ]
+}
+{% endschema %}
+
+
+
+
+
+
+

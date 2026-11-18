@@ -1,0 +1,86 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "cf398340704e9b311322ba80cd46705c"
+name = "Bundlo | Bundles Builder App"
+api_version = "2026-07"
+application_url = "https://bundlo.properoapps.in"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+
+[webhooks]
+api_version = "2026-10"
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/uninstalled"
+  topics = [ "app/uninstalled" ]
+
+  [[webhooks.subscriptions]]
+  topics = [ "orders/paid" ]
+  uri = "/webhooks/orders-paid"
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/refunds-create"
+  topics = [ "refunds/create" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/scopes_update"
+  topics = [ "app/scopes_update" ]
+
+  [events]
+api_version = "unstable" # Events currently only supported on unstable
+ 
+[[events.subscription]]
+handle = "bundle-order-events"
+topic = "Order"
+actions = ["create"]
+uri = "/events/orders"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_customers,read_inventory,read_orders,read_products,read_publications,read_themes,write_cart_transforms,write_discounts,write_inventory,write_products,write_publications"
+
+[auth]
+redirect_urls = [
+  "https://bundlo.properoapps.in/api/auth"
+]
+
+[app_proxy]
+url = "https://bundlo.properoapps.in"
+subpath = "bundlo"
+prefix = "apps"
+
+[[extensions]]
+type = "theme"
+handle = "byob-ui"
+
+[sidekick]
+extensions_summary = "Search and manage Bundlo bundles, bundle details, bundle status, bundle revenue, bundle analytics, bundle orders, bundle units sold, bundle performance, revenue rankings, and performance by bundle type"
+
+[product.metafields.app.data]
+name = "Bundle data"
+description = "Complete bundle configuration JSON for this product"
+type = "json"
+
+  [product.metafields.app.data.access]
+  admin = "merchant_read"
+  storefront = "public_read"
+
+[discount.metafields.app.function-configuration]
+type = "json"
+name = "Function configuration"
+
+  [discount.metafields.app.function-configuration.access]
+  admin = "merchant_read_write"
+  storefront = "none"
+
+[shop.metafields.app.progress_bar]
+name = "Progress Bar Config"
+description = "Stores the free shipping / milestone progress bar configuration for the storefront widget"
+type = "json"
+
+  [shop.metafields.app.progress_bar.access]
+  admin = "merchant_read"
+  storefront = "public_read"
+

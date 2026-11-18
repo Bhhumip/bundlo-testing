@@ -1,0 +1,194 @@
+{% comment %} <div>
+  {{ "volumne_collection_bundle.png" | asset_url | image_tag }}
+</div>
+
+{% schema %}
+{
+  "name": "Volume Bundle Widget",
+  "target": "section",
+  "settings": []
+}
+{% endschema %} {% endcomment %}
+
+{%- liquid
+  assign vb_title       = block.settings.title | default: 'Volume Discounts'
+  assign vb_subtitle    = block.settings.subtitle | default: 'Buy more, Save more'
+  assign vb_popular_tier = block.settings.popular_tier | default: 2
+
+  assign tier1_qty      = block.settings.tier1_qty | default: 1
+  assign tier1_discount = block.settings.tier1_discount | default: 0
+  assign tier1_label    = block.settings.tier1_label | default: 'Buy 1 item'
+
+  assign tier2_qty      = block.settings.tier2_qty | default: 2
+  assign tier2_discount = block.settings.tier2_discount | default: 25
+  assign tier2_label    = block.settings.tier2_label | default: 'Buy 2'
+
+  assign tier3_qty      = block.settings.tier3_qty | default: 3
+  assign tier3_discount = block.settings.tier3_discount | default: 30
+  assign tier3_label    = block.settings.tier3_label | default: 'Buy 3'
+
+  assign tier4_qty      = block.settings.tier4_qty | default: 5
+  assign tier4_discount = block.settings.tier4_discount | default: 40
+  assign tier4_label    = block.settings.tier4_label | default: 'Buy 5'
+
+  assign enable_tier4   = block.settings.enable_tier4 | default: false
+-%}
+
+<div
+  class="vb-section"
+  id="volume-bundle-{{ block.id }}"
+  data-product-id="{{ product.id }}"
+  data-product-handle="{{ product.handle }}"
+  data-popular-tier="{{ vb_popular_tier }}"
+  data-tier1-qty="{{ tier1_qty }}" data-tier1-discount="{{ tier1_discount }}"
+  data-tier2-qty="{{ tier2_qty }}" data-tier2-discount="{{ tier2_discount }}"
+  data-tier3-qty="{{ tier3_qty }}" data-tier3-discount="{{ tier3_discount }}"
+  data-tier4-qty="{{ tier4_qty }}" data-tier4-discount="{{ tier4_discount }}"
+  data-enable-tier4="{{ enable_tier4 }}"
+  {{ block.shopify_attributes }}
+>
+
+  <h2 class="vb-title">{{ vb_title }}</h2>
+  <p class="vb-subtitle">{{ vb_subtitle }}</p>
+
+ 
+  <script id="vb-variants-{{ block.id }}" type="application/json">
+    {{ product.variants | json }}
+  </script>
+  <script id="vb-options-{{ block.id }}" type="application/json">
+    {{ product.options_with_values | json }}
+  </script>
+
+  {%- comment %} ── Tier list ── {%- endcomment %}
+  <div class="vb-tiers" id="vb-tiers-{{ block.id }}">
+
+    {%- comment %} Tier 1 {%- endcomment %}
+    <div class="vb-tier" data-tier="1" data-qty="{{ tier1_qty }}" data-discount="{{ tier1_discount }}">
+      <div class="vb-tier-header">
+        <label class="vb-tier-radio-wrap">
+          <input type="radio" name="vb-tier-{{ block.id }}" value="1" class="vb-radio">
+          <span class="vb-tier-label">
+            {{ tier1_label }}
+            {%- if tier1_discount > 0 -%}
+              <span class="vb-tier-save">Save {{ tier1_discount }}%</span>
+            {%- endif -%}
+          </span>
+        </label>
+        <div class="vb-tier-prices">
+          <span class="vb-tier-price-now"></span>
+          <span class="vb-tier-price-was"></span>
+        </div>
+      </div>
+      <div class="vb-tier-slots" hidden></div>
+    </div>
+
+    {%- comment %} Tier 2 {%- endcomment %}
+    <div class="vb-tier" data-tier="2" data-qty="{{ tier2_qty }}" data-discount="{{ tier2_discount }}">
+      {%- if vb_popular_tier == 2 -%}
+        <span class="vb-popular-badge">Popular</span>
+      {%- endif -%}
+      <div class="vb-tier-header">
+        <label class="vb-tier-radio-wrap">
+          <input type="radio" name="vb-tier-{{ block.id }}" value="2" class="vb-radio">
+          <span class="vb-tier-label">
+            {{ tier2_label }}
+            {%- if tier2_discount > 0 -%}
+              <span class="vb-tier-save">Save {{ tier2_discount }}%</span>
+            {%- endif -%}
+          </span>
+        </label>
+        <div class="vb-tier-prices">
+          <span class="vb-tier-price-now"></span>
+          <span class="vb-tier-price-was"></span>
+        </div>
+      </div>
+      <div class="vb-tier-slots" hidden></div>
+    </div>
+
+    {%- comment %} Tier 3 {%- endcomment %}
+    <div class="vb-tier" data-tier="3" data-qty="{{ tier3_qty }}" data-discount="{{ tier3_discount }}">
+      {%- if vb_popular_tier == 3 -%}
+        <span class="vb-popular-badge">Popular</span>
+      {%- endif -%}
+      <div class="vb-tier-header">
+        <label class="vb-tier-radio-wrap">
+          <input type="radio" name="vb-tier-{{ block.id }}" value="3" class="vb-radio">
+          <span class="vb-tier-label">
+            {{ tier3_label }}
+            {%- if tier3_discount > 0 -%}
+              <span class="vb-tier-save">Save {{ tier3_discount }}%</span>
+            {%- endif -%}
+          </span>
+        </label>
+        <div class="vb-tier-prices">
+          <span class="vb-tier-price-now"></span>
+          <span class="vb-tier-price-was"></span>
+        </div>
+      </div>
+      <div class="vb-tier-slots" hidden></div>
+    </div>
+
+    {%- comment %} Tier 4 (optional) {%- endcomment %}
+    {%- if enable_tier4 -%}
+    <div class="vb-tier" data-tier="4" data-qty="{{ tier4_qty }}" data-discount="{{ tier4_discount }}">
+      {%- if vb_popular_tier == 4 -%}
+        <span class="vb-popular-badge">Popular</span>
+      {%- endif -%}
+      <div class="vb-tier-header">
+        <label class="vb-tier-radio-wrap">
+          <input type="radio" name="vb-tier-{{ block.id }}" value="4" class="vb-radio">
+          <span class="vb-tier-label">
+            {{ tier4_label }}
+            {%- if tier4_discount > 0 -%}
+              <span class="vb-tier-save">Save {{ tier4_discount }}%</span>
+            {%- endif -%}
+          </span>
+        </label>
+        <div class="vb-tier-prices">
+          <span class="vb-tier-price-now"></span>
+          <span class="vb-tier-price-was"></span>
+        </div>
+      </div>
+      <div class="vb-tier-slots" hidden></div>
+    </div>
+    {%- endif -%}
+
+  </div>
+
+  <button class="vb-atc-btn" id="vb-atc-{{ block.id }}" disabled>
+    Add to cart
+  </button>
+
+</div>
+
+{{ 'volume-bundle.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'volume-bundle.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Volume Bundle",
+  "target": "section",
+  "settings": [
+    { "type": "text",     "id": "title",        "label": "Title",    "default": "Volume Discounts" },
+    { "type": "text",     "id": "subtitle",      "label": "Subtitle", "default": "Buy more, Save more" },
+    { "type": "range",    "id": "popular_tier",  "label": "Popular badge on tier", "min": 1, "max": 4, "step": 1, "default": 2 },
+    { "type": "header",   "content": "Tier 1" },
+    { "type": "range",    "id": "tier1_qty",      "label": "Quantity", "min": 1, "max": 20, "step": 1, "default": 1 },
+    { "type": "range",    "id": "tier1_discount", "label": "Discount %","min": 0, "max": 80, "step": 1, "default": 0 },
+    { "type": "text",     "id": "tier1_label",    "label": "Label",    "default": "Buy 1 item" },
+    { "type": "header",   "content": "Tier 2" },
+    { "type": "range",    "id": "tier2_qty",      "label": "Quantity", "min": 1, "max": 20, "step": 1, "default": 2 },
+    { "type": "range",    "id": "tier2_discount", "label": "Discount %","min": 0, "max": 80, "step": 1, "default": 25 },
+    { "type": "text",     "id": "tier2_label",    "label": "Label",    "default": "Buy 2" },
+    { "type": "header",   "content": "Tier 3" },
+    { "type": "range",    "id": "tier3_qty",      "label": "Quantity", "min": 1, "max": 20, "step": 1, "default": 3 },
+    { "type": "range",    "id": "tier3_discount", "label": "Discount %","min": 0, "max": 80, "step": 1, "default": 30 },
+    { "type": "text",     "id": "tier3_label",    "label": "Label",    "default": "Buy 3" },
+    { "type": "header",   "content": "Tier 4 (optional)" },
+    { "type": "checkbox", "id": "enable_tier4",   "label": "Enable Tier 4", "default": false },
+    { "type": "range",    "id": "tier4_qty",      "label": "Quantity", "min": 1, "max": 20, "step": 1, "default": 5 },
+    { "type": "range",    "id": "tier4_discount", "label": "Discount %","min": 0, "max": 80, "step": 1, "default": 40 },
+    { "type": "text",     "id": "tier4_label",    "label": "Label",    "default": "Buy 5" }
+  ]
+}
+{% endschema %}

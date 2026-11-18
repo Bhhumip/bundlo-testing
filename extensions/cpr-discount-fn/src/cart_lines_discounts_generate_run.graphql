@@ -1,0 +1,34 @@
+query CprDiscountInput {
+  cart {
+    lines {
+      id
+
+      # This attribute is added when a product is added
+      # from the CPR widget.
+      upsellWidget: attribute(key: "_upsell_widget") {
+        value
+      }
+
+      quantity
+
+      cost {
+        subtotalAmount {
+          amount
+        }
+      }
+    }
+  }
+
+  discount {
+    discountClasses
+
+    # Merchant-configured percentage for THIS CPR discount.
+    # It is stored on the Shopify automatic discount itself.
+    metafield(
+      namespace: "$app"
+      key: "function-configuration"
+    ) {
+      jsonValue
+    }
+  }
+}

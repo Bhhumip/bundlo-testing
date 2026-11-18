@@ -1,0 +1,411 @@
+/* ============================================================
+   Mix & Match Bundle — assets/mix-and-match-bundle.css
+   ============================================================ */
+
+.mamb-section *,
+.mamb-section *::before,
+.mamb-section *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.mamb-section {
+  --mamb-bg:           #fdf6f0;
+  --mamb-white:        #ffffff;
+  --mamb-border:       #e8e0d8;
+  --mamb-text:         #1a1a1a;
+  --mamb-muted:        #888;
+  --mamb-accent:       #c8a882;
+  --mamb-accent-dark:  #a07850;
+  --mamb-active-bg:    #fff4ec;
+  --mamb-active-border:#c8a882;
+  --mamb-badge:        #e05c5c;
+  --mamb-cta:          #1a1a1a;
+  --mamb-cta-hover:    #333;
+  --mamb-radius:       12px;
+  --mamb-font:         'Georgia', 'Times New Roman', serif;
+  --mamb-font-ui:      'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --mamb-trans:        0.2s cubic-bezier(.4,0,.2,1);
+
+  font-family: var(--mamb-font-ui);
+  background: var(--mamb-bg);
+  padding: 48px 24px 80px;
+  min-height: 100vh;
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+.mamb-header {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 40px;
+}
+.mamb-title {
+  font-family: var(--mamb-font);
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 700;
+  color: var(--mamb-text);
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+.mamb-subtitle {
+  font-size: 15px;
+  color: var(--mamb-muted);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+/* ── Discount tier pills ─────────────────────────────────────── */
+.mamb-tiers {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.mamb-tier {
+  background: var(--mamb-white);
+  border: 2px solid var(--mamb-border);
+  border-radius: var(--mamb-radius);
+  padding: 14px 20px;
+  min-width: 110px;
+  text-align: center;
+  cursor: default;
+  transition: border-color var(--mamb-trans), background var(--mamb-trans), transform var(--mamb-trans);
+}
+.mamb-tier.is-active {
+  border-color: var(--mamb-active-border);
+  background: var(--mamb-active-bg);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(200,168,130,0.25);
+}
+.mamb-tier-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+.mamb-tier-icon svg { width: 36px; height: 28px; color: var(--mamb-accent); }
+.mamb-tier-count { font-size: 12px; color: var(--mamb-muted); }
+.mamb-tier-pct {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--mamb-text);
+  letter-spacing: 0.3px;
+}
+
+/* ── Layout ──────────────────────────────────────────────────── */
+.mamb-layout {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.mamb-products-col { flex: 1; min-width: 0; }
+
+/* ── Product grid ────────────────────────────────────────────── */
+.mamb-products {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+.mamb-empty {
+  grid-column: 1/-1;
+  text-align: center;
+  padding: 40px;
+  color: var(--mamb-muted);
+  font-size: 14px;
+}
+
+/* ── Product card ────────────────────────────────────────────── */
+.mamb-card {
+  background: var(--mamb-white);
+  border-radius: var(--mamb-radius);
+  border: 2px solid var(--mamb-border);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color var(--mamb-trans), box-shadow var(--mamb-trans), transform var(--mamb-trans);
+}
+.mamb-card:hover {
+  border-color: #ccc;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.07);
+  transform: translateY(-2px);
+}
+.mamb-card.in-bundle {
+  border-color: var(--mamb-active-border);
+}
+
+.mamb-card-img-wrap {
+  position: relative;
+  aspect-ratio: 1/1;
+  overflow: hidden;
+  background: #f5f0eb;
+}
+.mamb-card-img-wrap img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  transition: transform 0.35s ease;
+}
+.mamb-card:hover .mamb-card-img-wrap img { transform: scale(1.04); }
+
+/* Discount badge on image */
+.mamb-card-badge {
+  position: absolute;
+  top: 10px; right: 10px;
+  background: var(--mamb-badge);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.4px;
+}
+
+.mamb-card-body { padding: 12px 12px 8px; flex: 1; }
+.mamb-card-title {
+  font-size: 13px; font-weight: 600;
+  color: var(--mamb-text); margin-bottom: 6px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.mamb-card-prices { display: flex; align-items: center; gap: 8px; }
+.mamb-price-now { font-size: 14px; font-weight: 700; color: var(--mamb-text); }
+.mamb-price-was {
+  font-size: 12px; color: var(--mamb-muted);
+  text-decoration: line-through;
+  display: none; /* shown via JS when discount active */
+}
+.mamb-price-was.visible { display: inline; }
+
+/* ADD TO BUNDLE button */
+.mamb-add-btn {
+  display: block;
+  width: calc(100% - 24px);
+  margin: 0 12px 12px;
+  padding: 10px;
+  background: transparent;
+  color: var(--mamb-text);
+  border: 2px solid var(--mamb-text);
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--mamb-trans), color var(--mamb-trans), border-color var(--mamb-trans);
+  flex-shrink: 0;
+}
+.mamb-add-btn:hover:not(:disabled) {
+  background: var(--mamb-text);
+  color: #fff;
+}
+.mamb-add-btn.in-bundle {
+  background: var(--mamb-active-bg);
+  border-color: var(--mamb-active-border);
+  color: var(--mamb-accent-dark);
+}
+.mamb-add-btn.in-bundle::after { content: ' ✓'; }
+.mamb-add-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Sidebar ─────────────────────────────────────────────────── */
+.mamb-sidebar {
+  width: 300px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 20px;
+}
+.mamb-sidebar-inner {
+  background: var(--mamb-white);
+  border: 2px solid var(--mamb-border);
+  border-radius: var(--mamb-radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mamb-sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.mamb-sidebar-title {
+  font-family: var(--mamb-font);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--mamb-text);
+}
+.mamb-sidebar-count {
+  width: 26px; height: 26px;
+  background: var(--mamb-text);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Bundle list */
+.mamb-bundle-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 60px;
+}
+.mamb-bundle-empty-msg {
+  font-size: 13px;
+  color: var(--mamb-muted);
+  text-align: center;
+  padding: 16px 0;
+}
+.mamb-bundle-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px;
+  background: var(--mamb-bg);
+  border-radius: 8px;
+  border: 1px solid var(--mamb-border);
+  animation: mamb-slide-in 0.2s ease;
+  min-width: 0;
+}
+@keyframes mamb-slide-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.mamb-bundle-item-img {
+  width: 44px; height: 44px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+  background: var(--mamb-border);
+}
+.mamb-bundle-item-info { flex: 1; min-width: 0; overflow: hidden; }
+.mamb-bundle-item-title {
+  font-size: 12px; font-weight: 600;
+  color: var(--mamb-text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mamb-bundle-item-prices {
+  display: flex; align-items: center; gap: 6px; margin-top: 2px;
+  flex-shrink: 0;
+}
+.mamb-bundle-item-now { font-size: 12px; font-weight: 700; color: var(--mamb-text); }
+.mamb-bundle-item-was {
+  font-size: 11px; color: var(--mamb-muted);
+  text-decoration: line-through;
+}
+.mamb-bundle-item-badge {
+  font-size: 10px; font-weight: 800;
+  color: #fff; background: var(--mamb-badge);
+  padding: 1px 6px; border-radius: 10px;
+  flex-shrink: 0;
+}
+.mamb-bundle-remove {
+  background: none; border: none; cursor: pointer;
+  color: var(--mamb-muted); font-size: 13px; padding: 2px 4px;
+  border-radius: 4px; flex-shrink: 0;
+  transition: color var(--mamb-trans), background var(--mamb-trans);
+}
+.mamb-bundle-remove:hover { color: var(--mamb-badge); background: #fff0f0; }
+
+/* Vertical wrapper for badge and remove */
+.mamb-bundle-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  justify-content: flex-start;
+  flex-shrink: 0;
+}
+
+/* Next tier nudge */
+.mamb-next-tier {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--mamb-active-bg);
+  border: 1px dashed var(--mamb-active-border);
+  border-radius: 8px;
+}
+.mamb-next-tier-icon { color: var(--mamb-accent); flex-shrink: 0; }
+.mamb-next-tier-msg { font-size: 13px; color: var(--mamb-text); line-height: 1.4; }
+.mamb-next-tier-msg strong { color: var(--mamb-accent-dark); }
+
+/* Tier progress dots */
+.mamb-tier-dots {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+}
+.mamb-dot {
+  flex: 1;
+  padding: 6px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  border: 1.5px solid var(--mamb-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--mamb-muted);
+  cursor: default;
+  transition: all var(--mamb-trans);
+}
+.mamb-dot.is-reached {
+  border-color: var(--mamb-active-border);
+  background: var(--mamb-active-bg);
+  color: var(--mamb-accent-dark);
+}
+.mamb-dot.is-active {
+  border-color: var(--mamb-accent-dark);
+  background: var(--mamb-accent-dark);
+  color: #fff;
+}
+
+/* Checkout button */
+.mamb-checkout-btn {
+  width: 100%;
+  padding: 15px 16px;
+  background: var(--mamb-cta);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: background var(--mamb-trans), transform var(--mamb-trans), box-shadow var(--mamb-trans);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+}
+.mamb-checkout-btn:hover:not(:disabled) {
+  background: var(--mamb-cta-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.26);
+}
+.mamb-checkout-btn:disabled { opacity: 0.38; cursor: not-allowed; box-shadow: none; }
+.mamb-checkout-label { font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+.mamb-checkout-prices { display: flex; align-items: center; gap: 8px; }
+.mamb-checkout-now { font-size: 16px; font-weight: 800; }
+.mamb-checkout-was { font-size: 12px; text-decoration: line-through; opacity: 0.6; }
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .mamb-layout { flex-direction: column; }
+  .mamb-sidebar { width: 100%; position: static; }
+  .mamb-sidebar-inner { position: sticky; bottom: 0; border-radius: 12px 12px 0 0; }
+}
+@media (max-width: 600px) {
+  .mamb-products { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .mamb-tiers { gap: 8px; }
+  .mamb-tier { min-width: 80px; padding: 10px 12px; }
+  .mamb-bundle-item { gap: 8px; padding: 6px; }
+  .mamb-bundle-item-img { width: 36px; height: 36px; }
+  .mamb-bundle-item-badge { font-size: 9px; padding: 1px 5px; }
+  .mamb-bundle-remove { font-size: 12px; padding: 1px 3px; }
+}

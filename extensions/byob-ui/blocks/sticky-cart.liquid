@@ -1,0 +1,185 @@
+<script>
+  window.stickyCurrency =
+    "{{ cart.currency.symbol | default: '₹' }}";
+  window.stickyCurrencyCode = "{{ cart.currency.iso_code }}";
+</script>
+  {{ 'sticky-cart.css' | asset_url | stylesheet_tag }}
+
+  {% assign metafield_settings = shop.metafields.custom.sticky_cart_widget.value %}
+  <div 
+    id="sticky-cart-bar" 
+    class="sticky-cart hide-sticky"
+    style="
+      --sticky-bg: {{ metafield_settings.bgColor | default: '#ffffff' }};
+      --sticky-btn-bg: {{ metafield_settings.buttonBg | default: '#000000' }};
+      --sticky-btn-text: {{ metafield_settings.buttonText | default: '#ffffff' }};
+    "
+  >
+
+    <div class="sticky-cart-left">
+
+     <div
+  class="sticky-product-image"
+  style="
+    width: 85px;
+    height: 85px;
+    padding-top: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+  "
+>
+  <img
+    id="sticky-variant-image"
+    src="{{ product.featured_image | image_url: width: 120 }}"
+    alt="{{ product.title }}"
+    style="
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    "
+  >
+</div>
+
+
+      <div class="sticky-product-title">
+        {{ product.title }}
+      </div>
+
+      <div class="sticky-price">
+        <span id="sticky-price">
+          {{ product.price | money }}
+        </span>
+      </div>
+
+    </div>
+
+    <div class="sticky-cart-right">
+
+        <!-- Dynamic Variant Options -->
+    {% unless product.has_only_default_variant %}
+      <div class="sticky-variant-info">
+
+        {% for option in product.options_with_values %}
+
+          <div class="sticky-option-group">
+
+            <div 
+              class="sticky-custom-select"
+              data-option-position="{{ option.position }}"
+            >
+
+              <button type="button" class="sticky-select-trigger">
+
+                <span class="sticky-select-value">
+
+                  {% if option.selected_value %}
+                    {{ option.selected_value }}
+                  {% else %}
+                    Select {{ option.name }}
+                  {% endif %}
+
+                </span>
+
+                <svg 
+                  class="sticky-select-arrow"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+
+              </button>
+
+              <div class="sticky-select-dropdown">
+
+                {% for value in option.values %}
+
+                  {% assign option_available = false %}
+
+                  {% for variant in product.variants %}
+
+                    {% if variant.available %}
+
+                      {% case option.position %}
+
+                        {% when 1 %}
+                          {% if variant.option1 == value %}
+                            {% assign option_available = true %}
+                          {% endif %}
+
+                        {% when 2 %}
+                          {% if variant.option2 == value %}
+                            {% assign option_available = true %}
+                          {% endif %}
+
+                        {% when 3 %}
+                          {% if variant.option3 == value %}
+                            {% assign option_available = true %}
+                          {% endif %}
+
+                      {% endcase %}
+
+                    {% endif %}
+
+                  {% endfor %}
+
+                  <button 
+                    type="button"
+                    class="sticky-select-option {% if option.selected_value == value %}active{% endif %}"
+                    data-value="{{ value }}"
+                    data-available="{{ option_available }}"
+                    {% unless option_available %}disabled{% endunless %}
+                  >
+                    {{ value }}
+                  </button>
+
+                {% endfor %}
+
+              </div>
+
+            </div>
+
+          </div>
+
+        {% endfor %}
+
+      </div>
+    {% endunless %}
+
+      <button
+        type="button"
+        id="sticky-add-to-cart"
+        class="sticky-atc-btn"
+      >
+        Add to Cart
+      </button>
+
+    </div>
+
+  </div>
+
+  <script
+  src="{{ 'sticky-cart.js' | asset_url }}"
+  defer
+></script>
+
+  <script type="application/json" id="sticky-product-json">
+    {{ product | json }}
+  </script>
+
+  {% schema %}
+  {
+    "name": "Sticky Cart",
+    "target": "body",
+    "settings": []
+  }
+  {% endschema %}
+
+
+

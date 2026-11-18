@@ -1,0 +1,12 @@
+{
+  "welcome": "Bienvenue dans l'extension {{target}}!",
+  "iWouldLikeAFreeGiftWithMyOrder": "Je souhaite recevoir un cadeau gratuit avec ma commande",
+  "addAFreeGiftToMyOrder": "Ajouter un cadeau gratuit à ma commande",
+  "metafieldChangesAreNotSupported": "Les modifications de métachamps de panier ne sont pas prises en charge dans cette commande",  "checkoutUpsellTitle": "Offre de caisse",  "upsellTitle": "Offre spéciale : ajoutez cet article à votre commande",
+  "upsellDescription": "Proposez un ajout de produit en un clic avant que le client ne termine sa commande.",
+  "upsellButtonLabel": "Ajouter cette offre",
+  "upsellAdded": "Offre ajoutée",
+  "upsellDiscountText": "Économisez 20 % en ajoutant cet article maintenant.",
+  "noOfferConfigured": "Aucun produit d'upsell n'est encore configuré.",
+  "checkoutUpsellError": "Une erreur est survenue lors de l'application de l'upsell."
+}

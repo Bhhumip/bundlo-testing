@@ -1,0 +1,32 @@
+query CartInput {
+  cart {
+    cost {
+      subtotalAmount {
+        amount
+      }
+    }
+    lines {
+      id
+      fspAutoGift: attribute(key: "_fsp_auto_gift") {
+        value
+      }
+      freeGift: attribute(key: "_free_gift") {
+        value
+      }
+      cost {
+        subtotalAmount {
+          amount
+        }
+      }
+    }
+  }
+  discount {
+    discountClasses
+    metafield(
+      namespace: "$app:upsell-discounts"
+      key: "function-configuration"
+    ) {
+      jsonValue
+    }
+  }
+}

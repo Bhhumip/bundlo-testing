@@ -1,0 +1,26 @@
+name = "byob-ui"
+type = "theme"
+
+[[extensions]]
+type = "theme_app_extension"
+name = "Sticky Cart"
+handle = "sticky-cart"
+
+uid = "0e5c21e3-848b-99ca-a71e-bd2d139248a0c003d372"
+
+ 
+
+  [[extensions.ui.app_embeds]]
+  name = "Persistent Cart Embed"
+  handle = "app-embed"
+  target = "body"
+  [[extensions.targeting]]
+  target = "section"
+  template = "product"
+  schema = "blocks/sticky-cart.liquid"
+  
+
+  [[extensions.ui.app_embeds]]
+  name = "Bundle App Embed"
+  handle = "bundle_app_embed"
+  target = "body"

@@ -1,0 +1,45 @@
+{{ 'free-shipping-progress.css' | asset_url | stylesheet_tag }}
+
+{% assign progress_settings = shop.metafields.app--335863611393.progress_bar.value %}
+{{progress_settings}}
+<script>
+
+window.cartProgressSettings = {
+
+  currencySymbol:
+    '{{ localization.country.currency.symbol }}',
+
+  enabled:
+    {{ progress_settings.enabled | json }},
+
+  filledColor:
+    {{ progress_settings.appearance.filledColor | json }},
+
+  emptyColor:
+    {{ progress_settings.appearance.emptyColor | json }},
+
+  labels:
+    {{ progress_settings.labels | json }},
+
+  placement:
+    {{ progress_settings.placement | json }},
+
+  rules:
+    {{ progress_settings.rules | json }}
+
+};
+
+</script>
+
+<script
+  src="{{ 'free-shipping-progress.js' | asset_url }}"
+  defer
+></script>
+
+{% schema %}
+{
+  "name": "Cart Progress Bar",
+  "target": "body",
+  "settings": []
+}
+{% endschema %}

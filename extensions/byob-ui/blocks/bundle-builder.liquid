@@ -1,0 +1,72 @@
+  {% comment %}
+    Bundle Builder Block — uses PDP's native Add to Cart button
+    No custom button here — hooks into existing product-form submit
+  {% endcomment %}
+
+  {% assign components_data = product.metafields['app--335863611393'].data.value.components %}
+
+  {% if components_data and components_data.size > 0 %}
+
+<div class="bundle-builder"
+  id="bundle-builder"
+  data-bundle-product-id="{{ product.id }}"
+  data-bundle-title="{{ product.title | escape }}"
+  data-bundle-image="{{ product.featured_image | img_url: '200x200' }}"
+  data-variant-id="{{ product.selected_or_first_available_variant.id }}">
+
+    <div id="bundle-steps-container"></div>
+
+    <div class="bundle-error" id="bundle-error" style="display:none;"></div>
+
+    
+
+  </div>
+
+  <script type="application/json" id="bundle-components-json">
+  [
+    {% for comp in components_data %}
+    {
+      "productId": "{{ comp.productId }}",
+      "title": "{{ comp.title | escape }}",
+      "image": "{{ comp.image | escape }}",
+      "quantity": {{ comp.quantity | default: 1 }}
+    }{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ]
+  </script>
+
+  <link rel="stylesheet" href="{{ 'bundle-builder.css' | asset_url }}">
+  <script src="{{ 'bundle-builder.js' | asset_url }}" defer></script>
+
+  {% endif %}
+
+  {% schema %}
+  {
+    "name": "Bundle Builder",
+    "target": "section",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Labels"
+      },
+      {
+        "type": "text",
+        "id": "step_label",
+        "label": "Step prefix text",
+        "default": "Choose your"
+      },
+      {
+        "type": "text",
+        "id": "details_label",
+        "label": "Details link text",
+        "default": "Details"
+      },
+      {
+        "type": "text",
+        "id": "summary_label",
+        "label": "Bundle summary label",
+        "default": "Your Bundle"
+      }
+    ]
+  }
+  {% endschema %}

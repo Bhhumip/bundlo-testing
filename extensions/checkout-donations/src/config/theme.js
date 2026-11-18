@@ -1,0 +1,18 @@
+export const DEFAULT_THEME = {
+    charityName: "",
+    headline: "Add a small donation",
+    subheading: "Round up or add a contribution at checkout.",
+    ctaLabel: "Donate",
+    impactMessage: "",
+    learnMoreUrl: "",
+    donationTiers: [10, 20, 50],
+    allowCustomAmount: true,
+    customMinAmount: 1,
+    customMaxAmount: 5000,
+    allowRoundUp: false,
+    donationVariantId: null,
+    buttonVariant: "secondary",
+    borderRadius: "large",
+    gap: "base",
+    padding: "base",
+};

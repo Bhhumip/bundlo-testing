@@ -1,0 +1,106 @@
+.cart-progress-wrapper {
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  margin: 10px;
+}
+
+.cart-progress-message {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  line-height: 1.5;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.step.completed {
+  opacity: 1;
+  font-weight: 600;
+}
+
+.step {
+  opacity: .5;
+}
+
+.cart-progress-bar {
+  width: 100%;
+  height: 5px;
+  background: var(--progress-empty-color);
+  border-radius: 30px;
+  overflow: hidden;
+  position: relative;
+}
+
+.cart-progress-fill {
+  width: 0%;
+  height: 100%;
+  background: var(--progress-fill-color);
+  border-radius: 30px;
+  transition: width .4s ease;
+  display: block !important;
+}
+
+.cart-progress-steps {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 14px;
+  text-align: center;
+}
+
+.cart-progress-steps .step {
+  font-size: 13px;
+}
+
+.cart-progress-steps .step span {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 4px;
+  font-size: 16px;
+}
+
+.cart-progress-steps .step p {
+  font-size: 15px;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.cart-progress-wrapper--updating {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 80px;
+  /* chaaho to bada/ chhota kar sakte ho */
+}
+
+.cart-progress-wrapper--updating .cart-progress-message {
+  margin-bottom: 0;
+  justify-content: center;
+  text-align: center;
+}
+
+.cart-progress-wrapper--updating .cart-progress-bar,
+.cart-progress-wrapper--updating .cart-progress-steps {
+  display: none;
+}
+
+.step.completed {
+  color: green;
+  font-weight: bold;
+}
+
+.step.completed span::after {
+  content: ' ✓';
+}
+
+/*when  lower reward disabled*/
+.inactive-reward {
+  opacity: 0.4;
+}
+
+.completed {
+  opacity: 1;
+}

@@ -1,0 +1,46 @@
+node_modules
+
+# macOS
+.DS_Store
+
+/.cache
+/build
+/app/build
+/public/build/
+/public/_dev
+/app/public/build
+/prisma/dev.sqlite
+/prisma/dev.sqlite-journal
+database.sqlite
+*.pem
+
+*.sqlite
+*.sqlite-journal
+
+.env
+.env.*
+.env.dev
+.env.prod
+!.env.example
+bundlo-delpoy.zip
+bundlo-key.pem
+.react-router/
+# React Router generated types
+.react-router/types/
+
+/extensions/*/dist
+.bundl0-key.pem
+ bundlo-deploy-2026-09-22-landing-page-changes.zip
+# Ignore shopify files created during app dev
+.shopify/*
+.shopify.lock
+
+env.dev
+env.prod
+bundlo-key.pem
+.react-router/
+shopify.app.toml.before-production.txt
+
+
+
+

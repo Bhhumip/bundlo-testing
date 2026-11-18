@@ -1,0 +1,20 @@
+api_version = "2026-04"
+
+[[extensions]]
+name = "FBT Discount"
+handle = "fbt-discount-fn"
+uid = "92f08775-ed07-4577-98ce-94c94a3dd838"
+type = "function"
+description = "Applies merchant-configured discount to FBT (Frequently Bought Together) widget items"
+
+  [[extensions.targeting]]
+  target = "cart.lines.discounts.generate.run"
+  input_query = "src/cart_lines_discounts_generate_run.graphql"
+  export = "cart-lines-discounts-generate-run"
+
+  [extensions.build]
+  command = ""
+  path = "dist/function.wasm"
+
+[extensions.ui]
+handle = "fbt-discount-ui"

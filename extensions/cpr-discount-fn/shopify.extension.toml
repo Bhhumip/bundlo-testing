@@ -1,0 +1,26 @@
+api_version = "2026-07"
+
+[[extensions]]
+name = "CPR Discount"
+handle = "cpr-discount-fn"
+type = "function"
+uid = "900882d5-f4d0-886e-7522-59a98a6421b5d88f8160"
+description = "Applies merchant-configured discount to Customer Personalized Recommendation widget items"
+
+  [[extensions.targeting]]
+  target = "cart.lines.discounts.generate.run"
+  input_query = "src/cart_lines_discounts_generate_run.graphql"
+  export = "cart-lines-discounts-generate-run"
+
+  [[extensions.targeting]]
+  target = "cart.delivery-options.discounts.generate.run"
+  input_query = "src/cart_delivery_options_discounts_generate_run.graphql"
+  export = "cart-delivery-options-discounts-generate-run"
+
+  [extensions.build]
+  command = ""
+  path = "dist/function.wasm"
+
+  [extensions.ui]
+handle = "cpr-discount-ui"
+

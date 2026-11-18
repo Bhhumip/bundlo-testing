@@ -1,0 +1,45 @@
+{{ 'announcement.css' | asset_url | stylesheet_tag }}
+{{ 'announcement.js' | asset_url | script_tag }}
+
+{% assign metafield_settings = shop.metafields.custom.announcement_bar_widget.value %}
+{% if metafield_settings == blank or metafield_settings.enableBar %}
+<div
+  id="app-announcement-bar"
+  data-enable-scroll="{{ metafield_settings.enableScroll }}"
+  data-home-position="{{ metafield_settings.homePosition }}"
+  data-cart-position="{{ metafield_settings.cartPosition }}"
+  data-show-home="{{ metafield_settings.showHome }}"
+  data-show-cart="{{ metafield_settings.showCart }}"
+  data-show-cart-drawer="{{ metafield_settings.showCartDrawer }}"
+  style="
+    display:none;
+    background: {{ metafield_settings.bgColor }};
+    color: {{ metafield_settings.textColor }};
+    text-align:center;
+    padding: {{ metafield_settings.padding }}px;
+    margin: {{ metafield_settings.margin }}px;
+  "
+>
+  <span class="announcement-message">{{ metafield_settings.text1 }}</span>
+  {% if metafield_settings.messageCount >= 2 %}<span class="announcement-message">{{ metafield_settings.text2 }}</span>{% endif %}
+  {% if metafield_settings.messageCount >= 3 %}<span class="announcement-message">{{ metafield_settings.text3 }}</span>{% endif %}
+  {% if metafield_settings.messageCount >= 4 %}<span class="announcement-message">{{ metafield_settings.text4 }}</span>{% endif %}
+  {% if metafield_settings.messageCount >= 5 %}<span class="announcement-message">{{ metafield_settings.text5 }}</span>{% endif %}
+</div>
+{% endif %}
+
+{% schema %}{
+    "name":  "Announcement Bar",
+    "target":  "body",
+    "settings":  [
+
+                 ]
+}{% endschema %}
+
+
+
+
+
+
+
+

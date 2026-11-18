@@ -1,0 +1,18 @@
+{{ 'discount.css' | asset_url | stylesheet_tag }}
+{{ 'discount.js' | asset_url | script_tag }}
+
+{% assign metafield_settings = shop.metafields.custom.discount_code_field_widget.value %}
+
+{% if metafield_settings %}
+<script>
+  window.discountCodeFieldSettings = {{ metafield_settings | json }};
+</script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Discount Code Field",
+  "target": "body",
+  "settings": []
+}
+{% endschema %}

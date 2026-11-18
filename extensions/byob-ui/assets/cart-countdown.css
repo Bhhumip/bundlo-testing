@@ -1,0 +1,32 @@
+/* Cart page only */
+cart-items .cart-countdown-wrap {
+  width: fit-content;
+  max-width: 90%;
+  margin: 16px auto;
+  flex-basis: 100%;
+  order: 1;
+}
+
+.cart-countdown-heading {
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.cart-countdown-timer {
+  font-weight: bold;
+  text-align: center;
+}
+
+/* agar inner text bhi center chahiye */
+.cart-countdown-heading {
+  text-align: center;
+}
+
+.cart-countdown-heading {
+  margin-bottom: 6px;
+}
+
+.cart-countdown-timer {
+  font-weight: bold;
+  text-align: center;
+}

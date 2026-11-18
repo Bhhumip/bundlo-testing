@@ -1,0 +1,31 @@
+.announcement-bar-rendered {
+  overflow: hidden;
+  width: 100%;
+}
+
+.announcement-static-item {
+  display: inline-block;
+  margin: 0 15px;
+}
+
+/* .announcement-track {
+  display: flex;
+  gap: 40px;
+} */
+
+.announcement-track {
+  display: flex;
+  width: max-content;
+  gap: 250px;
+  white-space: nowrap;
+  animation: marquee 20s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}

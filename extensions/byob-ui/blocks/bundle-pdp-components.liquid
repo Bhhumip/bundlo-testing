@@ -1,0 +1,146 @@
+{% comment %}
+  Block: bundle-pdp-components.liquid
+  ─────────────────────────────────────────────────────────────────────
+  Theme App Extension block — target: product-template (section)
+
+  Passes bundle.components to JS via a window global.
+  The key uses block.id which JS reads by stripping 'bundle-pdp-'
+  from the wrapper div's id — guaranteeing an exact match.
+  ─────────────────────────────────────────────────────────────────────
+{% endcomment %}
+
+{%- assign bundle_obj = product.metafields['app--335863611393'].data.value -%}
+  
+{%- if bundle_obj == blank -%}
+  {%- comment %} Not a bundle — render nothing {%- endcomment -%}
+{%- else -%}
+  <script>
+    // Serialize the Liquid object as JSON into JS
+    window['__bundleData_{{ block.id }}'] = {{ bundle_obj | json }};
+  </script>
+
+<div
+  class="bundle-pdp-wrap"
+  id="bundle-pdp-{{ block.id }}"
+  data-block-id="{{ block.id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="bundle-pdp__header">
+    <h3 class="bundle-pdp__title">
+      {{ block.settings.title | default: "What's in this bundle" }}
+    </h3>
+  </div>
+
+  <div class="bundle-pdp__loading" aria-label="Loading bundle items">
+    {%- for i in (1..4) -%}
+      <div class="bundle-pdp__skeleton">
+        <div class="bundle-pdp__skeleton-img"></div>
+        <div class="bundle-pdp__skeleton-line"></div>
+        <div class="bundle-pdp__skeleton-line bundle-pdp__skeleton-line--short"></div>
+      </div>
+    {%- endfor -%}
+  </div>
+
+  <div class="bundle-pdp__grid" role="list" hidden></div>
+
+  <p class="bundle-pdp__error" hidden>
+    Could not load bundle items. Please refresh the page.
+  </p>
+</div>
+
+<style>
+  #bundle-pdp-{{ block.id }} {
+    --bdp-bg:           {{ block.settings.bg_color | default: '#f9f9f9' }};
+    --bdp-border:       {{ block.settings.border_color | default: '#e5e5e5' }};
+    --bdp-title-color:  {{ block.settings.title_color | default: '#111111' }};
+    --bdp-badge-bg:     {{ block.settings.badge_bg | default: '#000000' }};
+    --bdp-badge-color:  {{ block.settings.badge_color | default: '#ffffff' }};
+    --bdp-card-bg:      {{ block.settings.card_bg | default: '#ffffff' }};
+    --bdp-name-color:   {{ block.settings.name_color | default: '#111111' }};
+    --bdp-price-color:  {{ block.settings.price_color | default: '#e63946' }};
+    --bdp-cols:         {{ block.settings.columns | default: 2 }};
+  }
+
+
+</style>
+
+{{ 'bundle-pdp-components.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'bundle-pdp-components.js' | asset_url }}" defer></script>
+
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Bundle Components PDP",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Section Title",
+      "default": "What's in this bundle"
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Cards per row (desktop)",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Section Background",
+      "default": "#f9f9f9"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border Color",
+      "default": "#e5e5e5"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title Color",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "badge_bg",
+      "label": "Bundle Type Badge Background",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "badge_color",
+      "label": "Bundle Type Badge Text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "card_bg",
+      "label": "Card Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "name_color",
+      "label": "Product Name Color",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Price Color",
+      "default": "#e63946"
+    }
+  ]
+}
+{% endschema %}
