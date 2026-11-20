@@ -1,4 +1,4 @@
-﻿import { StyleTab } from "./StyleTab";
+import { StyleTab } from "./StyleTab";
 import { LayoutTab } from "./LayoutTab";
 import { TextTab } from "./TextTab";
 import { PositionTab } from "./PositionTab";
@@ -13,9 +13,6 @@ import { OrderNotePositionTab } from "./OrderNote/OrderNotePositionTab";
 import { CountdownPositionTab } from "./Countdown/CountdownPositionTab";
 import { CountdownContentTab } from "./Countdown/CountdownContentTab";
 import { CountdownStyleTab } from "./Countdown/CountdownStyleTab";
-import { DiscountCodeContentTab } from "./DiscountCode/DiscountCodeContentTab";
-import { DiscountCodeStyleTab } from "./DiscountCode/DiscountCodeStyleTab";
-import { DiscountCodePositionTab } from "./DiscountCode/DiscountCodePositionTab";
 import { InCartUpsellContentTab } from "./InCartUpsell/InCartUpsellContentTab";
 import { InCartUpsellStyleTab } from "./InCartUpsell/InCartUpsellStyleTab";
 import { InCartUpsellLayoutTab } from "./InCartUpsell/InCartUpsellLayoutTab";
@@ -25,7 +22,10 @@ import { AnnouncementBarContentTab } from "./AnnouncementBar/AnnouncementBarCont
 import { AnnouncementBarStyleTab } from "./AnnouncementBar/AnnouncementBarStyleTab";
 import { AnnouncementBarLayoutTab } from "./AnnouncementBar/AnnouncementBarLayoutTab";
 import { EmptyWidgetTab } from "./EmptyWidgetTab";
-import { FreeShippingProgressTab } from "./FreeShippingProgressTab";
+import { DiscountCodeContentTab } from "./DiscountCode/DiscountCodeContentTab";
+import { DiscountCodeStyleTab } from "./DiscountCode/DiscountCodeStyleTab";
+import { DiscountCodePositionTab } from "./DiscountCode/DiscountCodePositionTab";
+
 export const TAB_LABELS = {
     style: "Style",
     layout: "Layout",
@@ -127,25 +127,6 @@ const WIDGET_TAB_CONFIG = {
             layout: AnnouncementBarLayoutTab,
         },
     },
-    free_shipping_progress_bar: {
-        order: ["style"],
-        components: { style: FreeShippingProgressTab },
-    },
-    gift_wrap: { order: ["style", "layout", "text", "position"], components: { style: EmptyWidgetTab, layout: EmptyWidgetTab, text: EmptyWidgetTab, position: EmptyWidgetTab } },
-    shipping_protection: { order: ["style", "layout", "text", "position"], components: { style: EmptyWidgetTab, layout: EmptyWidgetTab, text: EmptyWidgetTab, position: EmptyWidgetTab } },
-    trust_badges: { order: ["style", "layout", "text", "position"], components: { style: EmptyWidgetTab, layout: EmptyWidgetTab, text: EmptyWidgetTab, position: EmptyWidgetTab } },
-    payment_icons: { order: ["style", "layout", "text", "position"], components: { style: EmptyWidgetTab, layout: EmptyWidgetTab, text: EmptyWidgetTab, position: EmptyWidgetTab } },
-    popup_upsell_funnel: { order: ["style", "layout", "text", "position"], components: { style: EmptyWidgetTab, layout: EmptyWidgetTab, text: EmptyWidgetTab, position: EmptyWidgetTab } },
-    ai_recommendations_in_cart: { order: ["style", "layout", "text", "position"], components: { style: EmptyWidgetTab, layout: EmptyWidgetTab, text: EmptyWidgetTab, position: EmptyWidgetTab } },
-    in_cart_upsell_cross_sell: {
-        order: ["style", "layout", "text", "position"],
-        components: {
-            style: InCartUpsellStyleTab,
-            layout: InCartUpsellLayoutTab,
-            text: InCartUpsellContentTab,
-            position: InCartUpsellPositionTab,
-        },
-    },
 };
 
 export function getTabsForWidget(widgetType) {
@@ -157,10 +138,3 @@ export function getTabsForWidget(widgetType) {
         components: { ...DEFAULT_TABS.components, ...override.components },
     };
 }
-
-
-
-
-
-
-

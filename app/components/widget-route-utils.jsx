@@ -2,22 +2,16 @@ import { useNavigate } from "react-router";
 import { GenericWidgetManagePage } from "./checkout-widgets/GenericWidgetManagePage";
 
 // ─── Widgets list for the "jump to another widget" dropdown  ──────────
+
 const WIDGET_NAV_OPTIONS = [
-  { key: "one_click_upsell_at_checkout", label: "One-click Upsell at Checkout" },
-  { key: "automatic_discounts", label: "Automatic Discounts" },
-  { key: "downsell_funnel", label: "Downsell Funnel" },
-  { key: "targeting_rules", label: "Targeting Rules" },
-  { key: "ab_testing", label: "A/B Testing" },
-  { key: "shipping_method_rules", label: "Shipping Method Rules" },
-  { key: "payment_method_rules", label: "Payment Method Rules" },
   { key: "donations", label: "Donations" },
   { key: "testimonials_social_proof", label: "Testimonials / Social Proof" },
-  { key: "reward_bar_progress_bar", label: "Reward Bar / Progress Bar" },
   { key: "free_shipping_progress_bar", label: "Free Shipping Progress Bar" },
   { key: "frequently_bought_together", label: "Frequently Bought Together" },
   { key: "customer_personalized_recommendation", label: "Customer Personalized Recommendation" },
   { key: "order_notes", label: "Order Notes" },
 ];
+
 
 const widgetKeyToSlug = (key) => key.replace(/_/g, "-");
 

@@ -537,10 +537,10 @@ model ShopPlan {
   trialLengthDays Int       @default(7)
 
   // Locally-cached subscription stateapp/models/shopPlans.server.js
-  status          String    @default("TRIALING")
-  currentPlan     String?
-  shopifyPlanName String?
-  subscriptionId  String?
+  status           String    @default("TRIALING")
+  currentPlan      String?
+  shopifyPlanName  String?
+  subscriptionId   String?
   currentPeriodEnd DateTime?
 
   // Pending plan change
@@ -582,6 +582,21 @@ model EmailLog {
   errorMessage String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  @@index([shop])
+}
+
+model SupportTicket {
+  id            Int      @id @default(autoincrement())
+  ticketNumber  String   @unique
+  shop          String
+  customerEmail String
+  subject       String
+  message       String
+  responseTime  String
+  status        String   @default("OPEN")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@index([shop])
 }

@@ -1,5 +1,6 @@
 import { WidgetCustomizeForm } from "../shared/CustomizeFormWidgets/WidgetCustomizeForm";
 import { useFetcher } from "react-router";
+import { SaveStatusBanner } from "./SaveStatusBanner";
 
 export function AnnouncementBarInCartWidget({ definition }) {
   const fetcher = useFetcher();
@@ -13,13 +14,16 @@ export function AnnouncementBarInCartWidget({ definition }) {
   }
 
   return (
-    <WidgetCustomizeForm
-      key={definition.key}
-      widgetType="announcement_bar_in_cart"
-      initialTheme={definition.savedTheme || null}
-      mode="storefront"
-      onSave={handleSave}
-      isSaving={fetcher.state === "submitting"}
-    />
+    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+      <SaveStatusBanner fetcher={fetcher} />
+      <WidgetCustomizeForm
+        key={definition.key}
+        widgetType="announcement_bar_in_cart"
+        initialTheme={definition.savedTheme || null}
+        mode="storefront"
+        onSave={handleSave}
+        isSaving={fetcher.state === "submitting"}
+      />
+    </div>
   );
 }

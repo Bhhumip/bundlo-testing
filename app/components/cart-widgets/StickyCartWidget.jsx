@@ -1,5 +1,6 @@
 import { WidgetCustomizeForm } from "../shared/CustomizeFormWidgets/WidgetCustomizeForm";
 import { useFetcher } from "react-router";
+import { SaveStatusBanner } from "./SaveStatusBanner";
 
 export function StickyCartWidget({ definition }) {
   const fetcher = useFetcher();
@@ -12,16 +13,17 @@ export function StickyCartWidget({ definition }) {
     fetcher.submit(formData, { method: "post" });
   }
 
-  const isSaving = fetcher.state === "submitting";
-
   return (
-    <WidgetCustomizeForm
-      key={definition.key}
-      widgetType="sticky_cart"
-      initialTheme={definition.savedTheme || null}
-      mode="storefront"
-      onSave={handleSave}
-      isSaving={isSaving}
-    />
+    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+      <SaveStatusBanner fetcher={fetcher} />
+      <WidgetCustomizeForm
+        key={definition.key}
+        widgetType="sticky_cart"
+        initialTheme={definition.savedTheme || null}
+        mode="storefront"
+        onSave={handleSave}
+        isSaving={fetcher.state === "submitting"}
+      />
+    </div>
   );
 }

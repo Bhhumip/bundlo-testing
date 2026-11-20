@@ -23,7 +23,6 @@ import { ACCOUNT_WIDGET_COMPONENTS } from "../components/account-widgets";
 // import { PaymentMethodRulesWidget } from "../components/checkout-widgets/PaymentMethodRulesWidget";
 import { DonationsWidget } from "../components/checkout-widgets/DonationsWidget";
 import { TestimonialsWidget } from "../components/checkout-widgets/TestimonialsWidget";
-import { RewardBarWidget } from "../components/checkout-widgets/RewardBarWidget";
 import { FreeShippingProgressBarWidget } from "../components/checkout-widgets/FreeShippingProgressBarWidget";
 import { FrequentlyBoughtTogetherWidget } from "../components/checkout-widgets/FrequentlyBoughtTogetherWidget";
 import { CustomerPersonalizedRecommendationWidget } from "../components/checkout-widgets/CustomerPersonalizedRecommendationWidget";
@@ -41,7 +40,6 @@ const CHECKOUT_WIDGET_COMPONENTS = {
   payment_method_rules: PaymentMethodRulesWidget,*/
   donations: DonationsWidget,
   testimonials_social_proof: TestimonialsWidget,
-  reward_bar_progress_bar: RewardBarWidget,
   frequently_bought_together: FrequentlyBoughtTogetherWidget,
   customer_personalized_recommendation: CustomerPersonalizedRecommendationWidget,
   order_notes: OrderNoteWidget,
@@ -128,6 +126,14 @@ export const loader = async ({ request, params }) => {
     await requireFeatureAccess(session.shop, "CART_COUNTDOWN");
   }
 
+  if (widgetKey === "sticky_cart" && surface === UPSELL_SURFACES.CART) {
+  await requireFeatureAccess(session.shop, "STICKY_CART");
+}
+
+if (widgetKey === "announcement_bar_in_cart" && surface === UPSELL_SURFACES.CART) {
+  await requireFeatureAccess(session.shop, "ANNOUNCEMENT_BAR");
+}
+
   if (widgetKey === "testimonials_social_proof") {
     await requireFeatureAccess(session.shop, "TESTIMONIALS");
   }
@@ -146,8 +152,25 @@ export const loader = async ({ request, params }) => {
     }
   }
 
-  if (widgetKey === "reward_bar_progress_bar") {
-    await requireFeatureAccess(session.shop, "FREE_GIFT");
+  if (widgetKey === "discount_code_field") {
+      await requireFeatureAccess(session.shop, "DISCOUNT_CODE_FIELD");
+  }
+
+  if (widgetKey === "free_shipping_progress_bar") {
+      if (surface === UPSELL_SURFACES.CART) {
+        await requireFeatureAccess(session.shop, "FREE_SHIPPING_CART");
+      }
+
+      if (surface === UPSELL_SURFACES.CHECKOUT) {
+        await requireFeatureAccess(session.shop, "FREE_SHIPPING_CHECKOUT");
+      }
+  }
+
+  if (widgetKey === "customer_personalized_recommendation") {
+    await requireFeatureAccess(
+      session.shop,
+      "CUSTOMER_PERSONALIZED_RECOMMENDATION"
+    );
   }
   if (!definition) throw new Response("Not Found", { status: 404 });
 
@@ -272,7 +295,7 @@ export function ErrorBoundary() {
             : error.data;
 
         if (data?.error === "FEATURE_NOT_AVAILABLE") {
-          message = `This feature is not available on your current ${data.currentPlan}. Please upgrade your plan to use it.`;
+          message = "This feature is currently unavailable. Unlock this feature to get access.";
         } else {
           message = "You don't have access to this feature.";
         }
@@ -324,14 +347,39 @@ export const action = async ({ request, params }) => {
       mix_match_bundle_builder: "MIX_MATCH",
       countdown_timer_urgency: "CART_COUNTDOWN",
       testimonials_social_proof: "TESTIMONIALS",
-      reward_bar_progress_bar: "FREE_GIFT",
       donations: "DONATIONS",
       frequently_bought_together: "FBT_CHECKOUT",
+      discount_code_field: "DISCOUNT_CODE_FIELD",
+      sticky_cart: "STICKY_CART",
+      announcement_bar_in_cart: "ANNOUNCEMENT_BAR",
+      free_shipping_progress_bar: "FREE_SHIPPING_CART",
+      customer_personalized_recommendation:"CUSTOMER_PERSONALIZED_RECOMMENDATION",
     };
 
     const requiredFeature = WIDGET_FEATURE_REQUIREMENTS[widgetKey];
 
     if (requiredFeature) {
+        if (widgetKey === "free_shipping_progress_bar") {
+    const feature =
+      surface === UPSELL_SURFACES.CART
+        ? "FREE_SHIPPING_CART"
+        : surface === UPSELL_SURFACES.CHECKOUT
+          ? "FREE_SHIPPING_CHECKOUT"
+          : null;
+
+    if (feature) {
+      await requireFeatureAccess(session.shop, feature);
+    }
+  } else if (requiredFeature) {
+    if (
+      widgetKey === "frequently_bought_together" &&
+      surface !== UPSELL_SURFACES.CHECKOUT
+    ) {
+      // no checkout FBT gating on other surfaces
+    } else {
+      await requireFeatureAccess(session.shop, requiredFeature);
+    }
+  }
       if (
         widgetKey === "frequently_bought_together" &&
         surface !== UPSELL_SURFACES.CHECKOUT

@@ -532,27 +532,26 @@ function WidgetCard({
                   Enable
                 </s-button>
               )
-            ) : isCheckout ? (
-              <s-button
-                variant="primary"
-                href={checkoutEditorUrl}
-                target="_blank"
-              >
-                Open checkout editor
-              </s-button>
             ) : (
-              <Form method="post">
-                <input type="hidden" name="intent" value="toggle-widget" />
-                <input type="hidden" name="widgetKey" value={definition.key} />
-                <s-button
-                  type="submit"
-                  variant={enabled ? "secondary" : "primary"}
-                  tone={enabled ? "critical" : "auto"}
-                  disabled={isBusy}
-                >
-                  {isBusy ? "Saving..." : enabled ? "Disable" : "Enable"}
-                </s-button>
-              </Form>
+              <>
+                <Form method="post">
+                  <input type="hidden" name="intent" value="toggle-widget" />
+                  <input type="hidden" name="widgetKey" value={definition.key} />
+                  <s-button
+                    type="submit"
+                    variant={enabled ? "secondary" : "primary"}
+                    tone={enabled ? "critical" : "auto"}
+                    disabled={isBusy}
+                  >
+                    {isBusy ? "Saving..." : enabled ? "Disable" : "Enable"}
+                  </s-button>
+                </Form>
+                {isCheckout && (
+                  <s-button variant="secondary" href={checkoutEditorUrl} target="_blank">
+                    Open checkout editor
+                  </s-button>
+                )}
+              </>
             )}
           </s-stack>
         </s-stack>

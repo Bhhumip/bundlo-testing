@@ -12,8 +12,7 @@ const sesClient = new SESClient({
 const FROM_ADDRESS = process.env.EMAIL_FROM;
 const REPLY_TO = process.env.EMAIL_REPLY_TO;
 
-async function sendEmail({ shop, event, to, subject, htmlBody }) {
-    // Fall back to a safe address if we somehow don't have a real recipient
+async function sendEmail({ shop, event, to, subject, htmlBody, replyTo }) {
     const recipient = to || process.env.EMAIL_FALLBACK_RECIPIENT;
 
     const log = await db.emailLog.create({
@@ -24,7 +23,7 @@ async function sendEmail({ shop, event, to, subject, htmlBody }) {
         const command = new SendEmailCommand({
             Source: FROM_ADDRESS,
             Destination: { ToAddresses: [recipient] },
-            ReplyToAddresses: REPLY_TO ? [REPLY_TO] : undefined,
+            ReplyToAddresses: replyTo ? [replyTo] : REPLY_TO ? [REPLY_TO] : undefined,
             Message: {
                 Subject: { Data: subject },
                 Body: { Html: { Data: htmlBody } },
@@ -35,32 +34,18 @@ async function sendEmail({ shop, event, to, subject, htmlBody }) {
 
         await db.emailLog.update({
             where: { id: log.id },
-            data: {
-                status: "sent",
-                messageId: result.MessageId,
-            },
+            data: { status: "sent", messageId: result.MessageId },
         });
 
-        console.log(
-            `[email] ${event} email sent to ${recipient} for ${shop}`
-        );
-
+        console.log(`[email] ${event} email sent to ${recipient} for ${shop}`);
         return true;
-        
     } catch (error) {
         await db.emailLog.update({
             where: { id: log.id },
-            data: {
-                status: "failed",
-                errorMessage: error.message,
-            },
+            data: { status: "failed", errorMessage: error.message },
         });
 
-        console.error(
-            `[email] Failed to send ${event} email to ${recipient} for ${shop}:`,
-            error.message
-        );
-
+        console.error(`[email] Failed to send ${event} email to ${recipient} for ${shop}:`, error.message);
         return false;
     }
 }

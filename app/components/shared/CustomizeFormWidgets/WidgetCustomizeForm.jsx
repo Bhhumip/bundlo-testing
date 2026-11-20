@@ -20,9 +20,9 @@ import { CountdownCartDrawerPreview } from "../PreviewCartDrawer/CountdownCartDr
 import { StickyCartPreview } from "../PreviewCartDrawer/StickyCartPreview";
 import { AnnouncementBarPreview } from "../PreviewCartDrawer/AnnouncementBarPreview";
 import { OrderNoteCartDrawerPreview } from "../PreviewCartDrawer/OrderNoteCartDrawerPreview";
-import { InCartUpsellPreview } from "../PreviewCartDrawer/InCartUpsellPreview";
 import { DiscountCodeCartDrawerPreview } from "../PreviewCartDrawer/DiscountCodeCartDrawerPreview";
 import { FreeShippingProgressBarPreview } from "../PreviewCartDrawer/FreeShippingProgressBarPreview";
+
 // Testimonials-specific tabs aren't built yet — show a friendly placeholder
 function TestimonialsTabPlaceholder({ tabName }) {
     return (
@@ -43,7 +43,6 @@ function TestimonialsTabPlaceholder({ tabName }) {
 // To add a new widget preview: import it above and add one line here.
 const PREVIEW_REGISTRY = {
     sticky_cart: StickyCartPreview,
-    in_cart_upsell_cross_sell: InCartUpsellPreview,
     announcement_bar_in_cart: AnnouncementBarPreview,
     bundle: BundleCardPreview,
     recommendation: RecommendationCardPreview,
@@ -70,7 +69,6 @@ const CHECKOUT_WIDGET_TYPES = [
     "testimonials_social_proof",
     "reward_bar_progress_bar",
     "order_notes",
-    "free_shipping_progress_bar",
 ];
 //----------------------Defaults for preview------------------------
 const TESTIMONIALS_CHECKOUT_DEFAULTS = {
@@ -152,28 +150,6 @@ const COUNTDOWN_CART_DRAWER_DEFAULTS = {
     showOnCartPage: true,
     showInCartDrawer: true,
 };
-
-const DISCOUNT_CODE_CART_DRAWER_DEFAULTS = {
-    enabled: true,
-    heading: "Have a discount code?",
-    placeholder: "Enter code",
-    buttonLabel: "Apply",
-    successMessage: "Discount applied!",
-    errorMessage: "Invalid discount code",
-    insertPosition: "top",
-    inputBorderColor: "#d9d9d9",
-    inputBorderRadius: 8,
-    inputHeight: 54,
-    buttonBackground: "#000000",
-    buttonTextColor: "#ffffff",
-    buttonRadius: 16,
-    fontSize: 16,
-    gap: 12,
-    successColor: "#16a34a",
-    errorColor: "#dc2626",
-    showOnCartPage: true,
-    showInCartDrawer: true,
-};
 // ─── Default theme ────────────────────────────────────────────────────────────
 const DEFAULT_THEME = {
     titleBundle: "Complete the bundle",
@@ -241,10 +217,8 @@ const DEFAULT_THEME = {
 const S = {
     root: {
         display: "grid",
-        gridTemplateColumns: "minmax(300px, 360px) minmax(0, 1fr)",
+        gridTemplateColumns: "30% 70%",
         minHeight: "580px",
-        width: "100%",
-        boxSizing: "border-box",
         border: "1px solid #e5e7eb",
         borderRadius: "12px",
         overflow: "hidden",
@@ -252,7 +226,6 @@ const S = {
         fontSize: "13px",
         background: "#ffffff",
     },
-
     panel: {
         background: "#fafafa",
         borderRight: "1px solid #e5e7eb",
@@ -504,12 +477,9 @@ export function WidgetCustomizeForm({ widgetType, initialTheme, onSave, mode: pr
         const isCountdownCartDrawer = widgetType === "countdown_timer_urgency";
         const isStickyCart = widgetType === "sticky_cart";
         const isAnnouncementBar = widgetType === "announcement_bar_in_cart";
-        const isDiscountCodeCartDrawer = widgetType === "discount_code_field";
-        const isFreeShipping = widgetType === "free_shipping_progress_bar";
         const base = {
             ...(isAnnouncementBar ? {
                 enableBar: true,
-                messageCount: 5,
                 text1: "?? Free Shipping on Orders Over $50",
                 text2: "? Trusted by 10,000+ Customers",
                 text3: "?? Secure Checkout Guaranteed",
@@ -531,18 +501,6 @@ export function WidgetCustomizeForm({ widgetType, initialTheme, onSave, mode: pr
                 buttonBg: t?.buttonBg ?? "#000000",
                 buttonText: t?.buttonText ?? "#ffffff",
             } : {}),
-            ...(isFreeShipping
-            ? {
-                title: "Free shipping",
-                goal: 50,
-                currency: "$",
-                progress: 0,
-                backgroundColor: "#f3f4f6",
-                progressColor: "#22c55e",
-                textColor: "#111827",
-                showRemainingAmount: true,
-            }
-            : {}),
             ...DEFAULT_THEME,
             ...(t || {}),
             // These four fields stay as numbers for storefront/FBT widgets,
@@ -590,10 +548,6 @@ export function WidgetCustomizeForm({ widgetType, initialTheme, onSave, mode: pr
         if (isOrderNotesCartDrawer) {
             return { ...base, ...ORDER_NOTES_CART_DRAWER_DEFAULTS, ...(t || {}) };
         }
-        // Merge discount code cart drawer-specific token defaults on top for that widget
-        if (isDiscountCodeCartDrawer) {
-            return { ...base, ...DISCOUNT_CODE_CART_DRAWER_DEFAULTS, ...(t || {}) };
-        }
 
         return base;
     };
@@ -630,12 +584,17 @@ export function WidgetCustomizeForm({ widgetType, initialTheme, onSave, mode: pr
         testimonials_social_proof: TestimonialsCheckoutPreview,
         donations: DonationsCheckoutPreview,
         order_notes: OrderNoteCheckoutPreview,
-        free_shipping_progress_bar: FreeShippingProgressBarPreview,
         // e.g. reward_bar_progress_bar: RewardBarPreview,
     };
 
     // WIDGETS THAT HAVE A DEDICATED PREVIEW COMPONENT
-    const SINGLE_PREVIEW_WIDGET_TYPES = ["order_notes_cart_drawer", "countdown_timer_urgency", "discount_code_field", "sticky_cart", "in_cart_upsell_cross_sell", "gift_wrap", "shipping_protection", "trust_badges", "payment_icons", "announcement_bar_in_cart", "popup_upsell_funnel", "free_shipping_progress_bar"];
+    const SINGLE_PREVIEW_WIDGET_TYPES = [
+    "order_notes_cart_drawer",
+    "countdown_timer_urgency",
+    "sticky_cart",
+    "announcement_bar_in_cart",
+    "discount_code_field",
+];
 
     const PreviewComponent = (() => {
         if (CHECKOUT_PREVIEW_REGISTRY[widgetType]) {
@@ -733,7 +692,6 @@ export function WidgetCustomizeForm({ widgetType, initialTheme, onSave, mode: pr
         } else if (widgetType === "announcement_bar_in_cart") {
             themeToSave = {
                 enableBar: theme.enableBar,
-                messageCount: theme.messageCount,
                 text1: theme.text1,
                 text2: theme.text2,
                 text3: theme.text3,
@@ -777,31 +735,6 @@ export function WidgetCustomizeForm({ widgetType, initialTheme, onSave, mode: pr
                 showOnCartPage: theme.showOnCartPage,
                 showInCartDrawer: theme.showInCartDrawer,
             };
-        } else if (widgetType === "discount_code_field") {
-            themeToSave = {
-                enabled: theme.enabled,
-                heading: theme.heading,
-                placeholder: theme.placeholder,
-                buttonLabel: theme.buttonLabel,
-                successMessage: theme.successMessage,
-                errorMessage: theme.errorMessage,
-                insertPosition: theme.insertPosition,
-                inputBorderColor: theme.inputBorderColor,
-                inputBorderRadius: theme.inputBorderRadius,
-                inputHeight: theme.inputHeight,
-                buttonBackground: theme.buttonBackground,
-                buttonTextColor: theme.buttonTextColor,
-                buttonRadius: theme.buttonRadius,
-                fontSize: theme.fontSize,
-                gap: theme.gap,
-                successColor: theme.successColor,
-                errorColor: theme.errorColor,
-                showOnCartPage: theme.showOnCartPage,
-                showInCartDrawer: theme.showInCartDrawer,
-            };
-        }
-        else if (widgetType === "free_shipping_progress_bar") {
-            themeToSave = theme;
         }
         else if (mode === "checkout") {
             // Other checkout widgets (FBT, donations, etc.) — existing logic
@@ -979,8 +912,6 @@ export function WidgetCustomizeForm({ widgetType, initialTheme, onSave, mode: pr
         </div >
     );
 }
-
-
 
 
 

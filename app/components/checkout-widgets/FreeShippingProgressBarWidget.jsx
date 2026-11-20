@@ -250,22 +250,6 @@ export function FreeShippingProgressBarWidget({ shop, definition }) {
 
   return (
     <div style={{ maxWidth: "1440px", margin: "0 auto", color: "#202223" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          flexWrap: "wrap",
-          gap: "16px",
-          marginBottom: "24px",
-        }}
-      >
-        <div>
-          <h1 style={{ fontSize: "25px", margin: "0 0 8px", fontWeight: 650 }}>
-            {definition.title || "Free Shipping Progress Bar"}
-          </h1>
-        </div>
-      </div>
 
       {saved && (
         <div

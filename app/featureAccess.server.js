@@ -13,20 +13,34 @@ import {
  * used by the trial feature list.
  */
 const FEATURE_LABELS = {
+    // Free
+    STICKY_CART: "Sticky cart",
+    ANNOUNCEMENT_BAR: "Announcement bar",
+
+    // Starter
+    FIXED_BUNDLE: "Fixed bundles",
+    VOLUME_BUNDLE: "Volume bundles",
     BYOB: "BYOB bundles",
     MIX_MATCH: "Mix & Match bundles",
     MULTIVARIANT: "Multivariant bundles",
     ORDER_NOTES_CART: "Order Notes (cart drawer)",
     BASIC_ANALYTICS: "Basic analytics",
 
+    // Growth
     CART_COUNTDOWN: "Cart countdown",
-    TESTIMONIALS: "Testimonials widget",
+    DISCOUNT_CODE_FIELD: "Discount Code Field",
+    FREE_SHIPPING_CART: "Free Shipping Bar (cart drawer)",
     FULL_ANALYTICS: "Full analytics dashboard",
 
+    // Pro
     FREE_GIFT: "Free-gift progress bar",
     DONATIONS: "Donations (checkout)",
     ORDER_NOTES_CHECKOUT: "Order Notes (checkout)",
+    TESTIMONIALS: "Testimonials widget",
     FBT_CHECKOUT: "FBT checkout upsell",
+    FREE_SHIPPING_CHECKOUT: "Free Shipping Bar (checkout)",
+    CUSTOMER_PERSONALIZED_RECOMMENDATION:
+        "Personalized Recommendation",
 
     BASIC_SUPPORT: "Basic support",
     PRIORITY_SUPPORT: "Priority support",

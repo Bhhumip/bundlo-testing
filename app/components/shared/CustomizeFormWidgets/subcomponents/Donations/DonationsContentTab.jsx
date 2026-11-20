@@ -67,7 +67,7 @@ export function DonationsContentTab({ theme, update }) {
                 <Field label="Preset tiers">
                     <input
                         type="text"
-                        value={theme.donationTiers.join(",")}
+                        value={(theme.donationTiers ?? []).join(",")}
                         onChange={(e) => {
                             const tiers = e.target.value
                                 .split(",")

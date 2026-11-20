@@ -475,6 +475,15 @@ export async function action({ request }) {
 
             const existingSubscription = appSubscriptions[0] ?? null;
 
+            const trialHasStarted = await shopPlans.hasTrialStarted(session.shop);
+            const remainingTrialDays = await shopPlans.getTrialDaysRemaining(session.shop);
+
+            if (!existingSubscription && trialHasStarted && remainingTrialDays > 0) {
+                return {
+                    error: "Paid plans will be available after your free trial ends.",
+                };
+            }
+
             console.log("Existing subscription before plan change:", {
     name: existingSubscription?.name,
     id: existingSubscription?.id,
@@ -667,11 +676,13 @@ function PlanCard({
     pendingChange,
     currentBillingPeriod,
     isTrialExpired,
+    isTrialing,
     trialPlan,
     trialFeatures,
         hasTrialStarted,
 }) {
-    const isFreeLocked = planKey === Free_PLAN && (hasActivePayment || isTrialExpired);
+    const isFreeLocked = planKey === Free_PLAN && (hasActivePayment || isTrialExpired || (paidAppPlan !== Free_PLAN && paidAppPlan !== null));
+    const isPaidPlanLockedDuringTrial = planKey !== Free_PLAN && isTrialing;
     const display = APP_PLAN_DISPLAY[planKey];
     const isFreeTrialActive =
     planKey === Free_PLAN &&
@@ -711,6 +722,8 @@ function PlanCard({
     pendingChange?.pendingChangeType === "PLAN_CHANGE" &&
     pendingChange?.pendingPlan === planKey &&
     pendingChange?.pendingBillingPeriod === billingPeriod;
+    const isCancellationPending = pendingChange?.pendingChangeType === "CANCELLATION" && !isCurrent;
+    const cancellationDateLabel = pendingChange?.pendingEffectiveAt ? new Date(pendingChange.pendingEffectiveAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "current plan ends";
     const isSamePlanDifferentBillingPeriod =
     hasActivePayment &&
     paidAppPlan === planKey &&
@@ -797,13 +810,13 @@ function PlanCard({
             </s-stack>
 
             <div style={{ marginTop: "16px" }}>
-                {isLockedByPlatform || isFreeLocked ? (
+                {isLockedByPlatform || isFreeLocked || isPaidPlanLockedDuringTrial || isCancellationPending ? (
                     <s-button disabled>
                         {isFreeLocked
                             ? isTrialExpired
                                 ? "Free trial ended"
                                 : "Free plan unavailable" 
-                            : `Requires ${APP_PLAN_REQUIRED_SHOPIFY_LABEL[planKey] ?? "a different Shopify plan"}`}
+                            : isLockedByPlatform ? `Requires ${APP_PLAN_REQUIRED_SHOPIFY_LABEL[planKey] ?? "a different Shopify plan"}` : isPaidPlanLockedDuringTrial ? "Available after Free trial" : isCancellationPending ? `Available after ${cancellationDateLabel}` : `Requires ${APP_PLAN_REQUIRED_SHOPIFY_LABEL[planKey] ?? "a different Shopify plan"}`}
                     </s-button>
                 ) : (
 
@@ -849,6 +862,7 @@ PlanCard.propTypes = {
     paidAppPlan: PropTypes.string,
     currentBillingPeriod: PropTypes.string,
     isTrialExpired: PropTypes.bool.isRequired,
+    isTrialing: PropTypes.bool.isRequired,
     trialPlan: PropTypes.string,
     trialFeatures: PropTypes.arrayOf(PropTypes.string),
     pendingChange: PropTypes.shape({
@@ -956,7 +970,7 @@ const isTrialExpired =
 
                     {isTrialing && !isDevStore && (
                         <s-banner heading={`${trialDaysRemaining} day${trialDaysRemaining === 1 ? "" : "s"} left in your trial`} tone="info">
-                            Subscribe any time to keep bundling without interruption.
+                            Paid plans will be available after your free trial ends.
                         </s-banner>
                     )}
 
@@ -1108,6 +1122,7 @@ const isTrialExpired =
                                 allowBillingPeriodChange={allowBillingPeriodChange}
                                 pendingChange={pendingChange}
                                 isTrialExpired={isTrialExpired}
+                                isTrialing={isTrialing}
                                 trialPlan={trialPlan}
                                 trialFeatures={trialFeatures}
                             />

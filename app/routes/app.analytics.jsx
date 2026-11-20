@@ -57,25 +57,61 @@ if (!hasBasicAnalytics && !hasFullAnalytics) {
 
   const url = new URL(request.url);
 
-  const days = Number(url.searchParams.get("days")) || 30;
   const compare = url.searchParams.get("compare") || "previous";
+  const preset = url.searchParams.get("preset") || "";
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  const endDate = new Date();
+  const parseDate = (value) => {
+    if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+
+    const [year, month, day] = value.split("-").map(Number);
+    const date = new Date(year, month - 1, day);
+
+    if (
+      date.getFullYear() !== year ||
+      date.getMonth() !== month - 1 ||
+      date.getDate() !== day
+    ) return null;
+
+    return date;
+  };
+
+  let startDate;
+  let endDate;
+
+  if (preset === "today") {
+    startDate = new Date(today);
+    endDate = new Date(today);
+  } else if (preset === "custom") {
+    startDate = parseDate(url.searchParams.get("startDate"));
+    endDate = parseDate(url.searchParams.get("endDate"));
+
+    if (!startDate || !endDate || startDate > endDate) {
+      startDate = new Date(today);
+      startDate.setDate(startDate.getDate() - 29);
+      endDate = new Date(today);
+    }
+  } else {
+    const days = Number(url.searchParams.get("days")) || 30;
+    const validDays = [7, 30].includes(days) ? days : 30;
+
+    endDate = new Date(today);
+    startDate = new Date(today);
+    startDate.setDate(startDate.getDate() - (validDays - 1));
+  }
+
+  const days = Math.round(
+    (endDate - startDate) / (24 * 60 * 60 * 1000)
+  ) + 1;
+
   endDate.setHours(23, 59, 59, 999);
 
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - (days - 1));
-  startDate.setHours(0, 0, 0, 0);
-
   const comparisonStartDate = new Date(startDate);
-  comparisonStartDate.setDate(
-    comparisonStartDate.getDate() - days
-  );
+  comparisonStartDate.setDate(comparisonStartDate.getDate() - days);
 
   const comparisonEndDate = new Date(startDate);
-  comparisonEndDate.setDate(
-    comparisonEndDate.getDate() - 1
-  );
+  comparisonEndDate.setDate(comparisonEndDate.getDate() - 1);
   comparisonEndDate.setHours(23, 59, 59, 999);
 
  const [
@@ -311,11 +347,13 @@ function ToolbarDropdown({
   options,
   value,
   onChange,
+  title,
 }) {
   return (
     <div style={{ position: "relative" }}>
       <button
         type="button"
+        title={title}
         onClick={() => setOpen(!open)}
         style={{
           height: "40px",
@@ -641,6 +679,25 @@ function LockedAnalyticsCard({ title, description }) {
 
 export default function Analytics() {
   const data = useLoaderData();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const [compareOpen, setCompareOpen] = React.useState(false);
+  const [exportOpen, setExportOpen] = React.useState(false);
+  const initialDateParams = new URLSearchParams(location.search);
+  const todayDate = new Date().toLocaleDateString("en-CA");
+
+  const [customOpen, setCustomOpen] = React.useState(false);
+  const [dateMode, setDateMode] = React.useState(
+    initialDateParams.get("dateMode") || "range"
+  );
+  const [customStartDate, setCustomStartDate] = React.useState(
+    initialDateParams.get("startDate") || todayDate
+  );
+  const [customEndDate, setCustomEndDate] = React.useState(
+    initialDateParams.get("endDate") || todayDate
+  );
+
 
   if (data.locked) {
     return (
@@ -733,8 +790,6 @@ export default function Analytics() {
     hasBasicAnalytics,
     hasFullAnalytics,
   } = data;
-
-  const location = useLocation();
   const params = new URLSearchParams(location.search);
 
   const days =
@@ -743,23 +798,31 @@ export default function Analytics() {
   const compare =
    params.get("compare") || "previous";
 
-  const periodLabel =
-  days === 7
-    ? "Last 7 days"
-    : days === 30
-      ? "Last 30 days"
-      : days === 90
-        ? "Last 90 days"
-        : `Last ${days} days`;
+const formatDateLabel = (value) => {
+  if (!value) return "";
 
- 
-  const navigate = useNavigate();
- 
+  const [year, month, day] = value.split("-").map(Number);
 
-  const [rangeOpen, setRangeOpen] = React.useState(false);
-  const [compareOpen, setCompareOpen] = React.useState(false);
-  const [exportOpen, setExportOpen] = React.useState(false);
+  return new Date(year, month - 1, day).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
 
+const periodLabel =
+  params.get("preset") === "today"
+    ? "Today"
+    : params.get("preset") === "custom"
+      ? params.get("dateMode") === "single"
+        ? formatDateLabel(params.get("startDate"))
+        : `${formatDateLabel(params.get("startDate"))} – ${formatDateLabel(params.get("endDate"))}`
+      : days === 7
+        ? "Last 7 days"
+        : days === 90
+          ? "Last 90 days"
+          : "Last 30 days";
+          
   /* -------------------------------------------------------
      PERIOD DATA
   ------------------------------------------------------- */
@@ -970,13 +1033,34 @@ const unitsChartData = aggregatedDaily.map(
      NAVIGATION
   ------------------------------------------------------- */
 
-  const changeRange = (newDays) => {
+  const changePreset = (preset, rangeDays) => {
     const next = new URLSearchParams(location.search);
 
-    next.set("days", newDays);
+    next.delete("startDate");
+    next.delete("endDate");
+
+    if (preset === "today") {
+      next.set("preset", "today");
+      next.delete("days");
+    } else {
+      next.delete("preset");
+      next.set("days", String(rangeDays));
+    }
+
     navigate(`?${next.toString()}`);
   };
 
+  const applyCustomDates = (mode, startDate, endDate) => {
+    const next = new URLSearchParams(location.search);
+
+    next.set("preset", "custom");
+    next.set("dateMode", mode);
+    next.set("startDate", startDate);
+    next.set("endDate", mode === "single" ? startDate : endDate);
+    next.delete("days");
+
+    navigate(`?${next.toString()}`);
+  };
   const changeComparison = (value) => {
     const next = new URLSearchParams(location.search);
 
@@ -1053,11 +1137,13 @@ const unitsChartData = aggregatedDaily.map(
   };
 
   const rangeLabel =
-    days === 7
-      ? "Last 7 days"
-      : days === 90
-        ? "Last 90 days"
-        : "Last 30 days";
+    params.get("preset") === "today"
+      ? "Today"
+      : params.get("preset") === "custom"
+        ? "Custom"
+        : days === 7
+          ? "Last 7 days"
+          : "Last 30 days";
 
   /* -------------------------------------------------------
      RENDER
@@ -1084,32 +1170,182 @@ const unitsChartData = aggregatedDaily.map(
             marginBottom: "28px",
           }}
         >
-          <ToolbarDropdown
-            icon="◷"
-            label={rangeLabel}
-            value={String(days)}
-            open={rangeOpen}
-            setOpen={setRangeOpen}
-            options={[
-              {
-                label: "Last 7 days",
-                value: "7",
-              },
-              {
-                label: "Last 30 days",
-                value: "30",
-              },
-              {
-                label: "Last 90 days",
-                value: "90",
-              },
-            ]}
-            onChange={(value) =>
-              changeRange(Number(value))
-            }
-          />
+                    <div style={{ position: "relative" }}>
+            <button
+              type="button"
+              onClick={() => setCustomOpen(!customOpen)}
+              style={{
+                height: "40px",
+                padding: "0 13px",
+                background: "#fff",
+                border: "1px solid #c9cdd2",
+                borderRadius: "8px",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                fontSize: "14px",
+                fontWeight: 500,
+                color: "#202223",
+                cursor: "pointer",
+              }}
+            >
+              ◷ {rangeLabel} <span>▾</span>
+            </button>
 
-          <ToolbarDropdown
+            {customOpen && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "46px",
+                  left: 0,
+                  width: "280px",
+                  background: "#fff",
+                  border: "1px solid #dfe3e8",
+                  borderRadius: "8px",
+                  padding: "12px",
+                  boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+                  zIndex: 30,
+                }}
+              >
+                {[
+                  { label: "Today", action: () => changePreset("today") },
+                  { label: "Last 7 days", action: () => changePreset("7", 7) },
+                  { label: "Last 30 days", action: () => changePreset("30", 30) },
+                ].map((item) => (
+                  <button
+                    key={item.label}
+                    type="button"
+                    onClick={() => {
+                      item.action();
+                      setCustomOpen(false);
+                    }}
+                    style={{
+                      display: "block",
+                      width: "100%",
+                      padding: "9px",
+                      border: 0,
+                      borderRadius: "5px",
+                      background: "transparent",
+                      textAlign: "left",
+                      cursor: "pointer",
+                      fontSize: "14px",
+                    }}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+
+                <div
+                  style={{
+                    borderTop: "1px solid #e5e7eb",
+                    margin: "8px 0",
+                    paddingTop: "10px",
+                  }}
+                >
+                  <strong style={{ fontSize: "14px" }}>Custom</strong>
+
+                  <div style={{ display: "flex", gap: "8px", marginTop: "10px" }}>
+                    <button
+                      type="button"
+                      onClick={() => setDateMode("single")}
+                      style={{
+                        flex: 1,
+                        padding: "7px",
+                        border: "1px solid #c9cdd2",
+                        borderRadius: "5px",
+                        background: dateMode === "single" ? "#f1f2f3" : "#fff",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Single Date
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setDateMode("range")}
+                      style={{
+                        flex: 1,
+                        padding: "7px",
+                        border: "1px solid #c9cdd2",
+                        borderRadius: "5px",
+                        background: dateMode === "range" ? "#f1f2f3" : "#fff",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Date Range
+                    </button>
+                  </div>
+
+                  <label style={{ display: "block", marginTop: "12px", fontSize: "13px" }}>
+                    {dateMode === "single" ? "Select date" : "Start date"}
+                    <input
+                      type="date"
+                      value={customStartDate}
+                      max={todayDate}
+                      onChange={(event) => setCustomStartDate(event.target.value)}
+                      style={{
+                        display: "block",
+                        width: "100%",
+                        boxSizing: "border-box",
+                        padding: "8px",
+                        marginTop: "5px",
+                        border: "1px solid #c9cdd2",
+                        borderRadius: "5px",
+                      }}
+                    />
+                  </label>
+
+                  {dateMode === "range" && (
+                    <label style={{ display: "block", marginTop: "10px", fontSize: "13px" }}>
+                      End date
+                      <input
+                        type="date"
+                        value={customEndDate}
+                        min={customStartDate}
+                        max={todayDate}
+                        onChange={(event) => setCustomEndDate(event.target.value)}
+                        style={{
+                          display: "block",
+                          width: "100%",
+                          boxSizing: "border-box",
+                          padding: "8px",
+                          marginTop: "5px",
+                          border: "1px solid #c9cdd2",
+                          borderRadius: "5px",
+                        }}
+                      />
+                    </label>
+                  )}
+
+                  <button
+                    type="button"
+                    disabled={
+                      !customStartDate ||
+                      (dateMode === "range" &&
+                        (!customEndDate || customStartDate > customEndDate))
+                    }
+                    onClick={() => {
+                      applyCustomDates(dateMode, customStartDate, customEndDate);
+                      setCustomOpen(false);
+                    }}
+                    style={{
+                      width: "100%",
+                      marginTop: "14px",
+                      padding: "10px",
+                      border: 0,
+                      borderRadius: "6px",
+                      background: "#303030",
+                      color: "#fff",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+<ToolbarDropdown
             icon="↔"
             label={
               compare === "previous"
@@ -1117,6 +1353,7 @@ const unitsChartData = aggregatedDaily.map(
                 : "No comparison"
             }
             value={compare}
+            title="Compares your selected date range with the previous period."
             open={compareOpen}
             setOpen={setCompareOpen}
             options={[

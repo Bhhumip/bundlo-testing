@@ -76,8 +76,6 @@ async function findExistingDiscountGid(admin) {
   return null;
 }
 
-//const FUNCTION_ID = "019f8365-59cf-714f-8a2a-b2c25646149c";
-const FUNCTION_HANDLE = "fbt-discount-fn";
 
 async function createDiscount(admin, percentage) {
 
@@ -89,11 +87,8 @@ async function createDiscount(admin, percentage) {
   const response = await admin.graphql(CREATE_DISCOUNT_MUTATION, {
     variables: {
       automaticAppDiscount: {
-
-        title: DISCOUNT_TITLE,
-
-        functionHandle: FUNCTION_HANDLE,
-
+  title: DISCOUNT_TITLE,
+  functionHandle: "fbt-discount-fn",
         discountClasses: ["PRODUCT"],
 
         startsAt,

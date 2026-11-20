@@ -40,6 +40,12 @@ env.prod
 bundlo-key.pem
 .react-router/
 shopify.app.toml.before-production.txt
+node_modules
+.env*
+env.*
+*.db
+*.logs
+.react-router/
 
 
 

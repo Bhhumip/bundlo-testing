@@ -108,15 +108,19 @@ export const PLAN_FEATURES = {
 ],
     [Growth_PLAN]: [
     "Cart countdown",
-    "Testimonials widget",
+    "Free Shipping Bar (cart drawer)",
+    "Discount Code Field",
     "Full analytics dashboard",
-    "Priority support",
 ],
     [Pro_PLAN]: [
         "Free-gift progress bar",
+        "Testimonials widget",
         "Donations (checkout)",
         "Order Notes (checkout)",
         "FBT checkout upsell",
+        "Free Shipping Bar (checkout)",
+        "Personalized Recommendation",
+        "Priority support",
     ],
 };
 
@@ -234,10 +238,12 @@ export const APP_PLAN_REQUIRED_SHOPIFY_LABEL = {
 // used for pricing-card display text.
 export const FEATURE_MIN_PLAN = {
     // Free
-    FIXED_BUNDLE: Free_PLAN,
-    VOLUME_BUNDLE: Free_PLAN,
+    STICKY_CART: Free_PLAN,
+    ANNOUNCEMENT_BAR: Free_PLAN,
     // Starter
     BYOB: Starter_PLAN,
+    FIXED_BUNDLE: Starter_PLAN,
+    VOLUME_BUNDLE: Starter_PLAN,
     MIX_MATCH: Starter_PLAN,
     MULTIVARIANT: Starter_PLAN,
     ORDER_NOTES_CART: Starter_PLAN,
@@ -246,15 +252,19 @@ export const FEATURE_MIN_PLAN = {
     BASIC_SUPPORT: Starter_PLAN,
 
     // Growth
-    TESTIMONIALS: Growth_PLAN,
+    FREE_SHIPPING_CART: Growth_PLAN,
+DISCOUNT_CODE_FIELD: Growth_PLAN,
     FULL_ANALYTICS: Growth_PLAN,
-    PRIORITY_SUPPORT: Growth_PLAN,
 
     // Pro
     FREE_GIFT: Pro_PLAN,
     DONATIONS: Pro_PLAN,
     ORDER_NOTES_CHECKOUT: Pro_PLAN,
     FBT_CHECKOUT: Pro_PLAN,
+    TESTIMONIALS: Pro_PLAN,
+FREE_SHIPPING_CHECKOUT: Pro_PLAN,
+CUSTOMER_PERSONALIZED_RECOMMENDATION: Pro_PLAN,
+PRIORITY_SUPPORT: Pro_PLAN,
 };
 
 const PLAN_RANK = {
@@ -325,8 +335,7 @@ export function getTrialFeatures(storePlanName) {
     return getCumulativePlanFeatures(Starter_PLAN).filter(
         (feature) =>
             feature !== "Basic support" &&
-            feature !== "Basic analytics" &&
-            feature !== "Multivariant bundles"
+            feature !== "Basic analytics"
     );
 }
 

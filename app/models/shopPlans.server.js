@@ -1,5 +1,4 @@
 // app/shopPlans.server.js
-//
 // Thin wrapper around the ShopPlan Prisma model. Uses the default `prisma`
 // export from db.server.js — doesn't duplicate the client. Every function
 // is safe to call even if no row exists yet for the shop (upserts where
@@ -18,19 +17,21 @@ export const shopPlans = {
     // later than the first load for some reason).
     async ensureTrialStarted(shop, trialLengthDays) {
         const existing = await prisma.shopPlan.findUnique({ where: { shop } });
-        if (existing) {
-    if (!existing.trialStartedAt && existing.trialLengthDays > 0) {
-        return prisma.shopPlan.update({
-            where: { shop },
-            data: {
-                trialStartedAt: new Date(),
-                status: "TRIALING",
-            },
-        });
-    }
 
-    return existing;
-}
+        if (existing) {
+            if (!existing.trialStartedAt && trialLengthDays > 0) {
+                return prisma.shopPlan.update({
+                    where: { shop },
+                    data: {
+                        trialStartedAt: new Date(),
+                        trialLengthDays,
+                        status: "TRIALING",
+                    },
+                });
+            }
+
+            return existing;
+        }
 
         return prisma.shopPlan.create({
             data: {
@@ -182,6 +183,23 @@ export const shopPlans = {
     where: { shop },
 });
 
+if (
+    existing?.pendingChangeType === "CANCELLATION" &&
+    existing?.pendingEffectiveAt &&
+    existing?.currentPlan &&
+    new Date() < new Date(existing.pendingEffectiveAt)
+) {
+    return prisma.shopPlan.update({
+        where: { shop },
+        data: {
+            status: "ACTIVE",
+            currentPlan: existing.currentPlan,
+            subscriptionId: existing.subscriptionId,
+            currentPeriodEnd: existing.currentPeriodEnd,
+        },
+    });
+}
+
 if (!existing) {
     return null;
 }
@@ -199,9 +217,7 @@ return prisma.shopPlan.update({
         currentPlan: null,
         subscriptionId: null,
         currentPeriodEnd: null,
-        trialLengthDays: trialActive
-            ? existing.trialLengthDays
-            : 0,
+        trialLengthDays: trialActive ? existing.trialLengthDays : (existing.trialStartedAt ? 0 : existing.trialLengthDays),
     },
 });
 },
@@ -603,6 +619,12 @@ async hasTrialStarted(shop) {
     const existing = await prisma.shopPlan.findUnique({
         where: { shop },
     });
+
+    // Declined approval must not modify the existing subscription.
+if (webhookSubscription.status === "DECLINED") {
+    console.log(`[webhook] Ignoring DECLINED subscription for ${shop}`);
+    return existing;
+}
 
     const webhookPlan =
     BASE_PLAN_KEY[webhookSubscription.name] ??

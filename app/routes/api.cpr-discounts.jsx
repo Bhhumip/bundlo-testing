@@ -1,6 +1,6 @@
 import { authenticate } from "../shopify.server";
 
-const DISCOUNT_TITLE = "CPR-discount";
+const DISCOUNT_TITLE = "CPR Discount";
 
 const FIND_DISCOUNT_QUERY = `
   query FindDiscount($query: String!) {
@@ -128,7 +128,6 @@ async function findExistingDiscountGid(admin) {
   return null;
 }
 
-const FUNCTION_ID = "019fde28-81b5-7fbd-8751-3e12f3a2a1d6";
 
 async function createDiscount(admin, percentage) {
   const startsAt = new Date().toISOString();
@@ -141,7 +140,7 @@ async function createDiscount(admin, percentage) {
       automaticAppDiscount: {
         title: DISCOUNT_TITLE,
 
-        functionId: FUNCTION_ID,
+        functionHandle: "cpr-discount-fn",
 
         discountClasses: ["PRODUCT"],
 

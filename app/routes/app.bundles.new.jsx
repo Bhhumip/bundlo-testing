@@ -42,6 +42,7 @@ export const loader = async ({ request }) => {
 // -----------------------------------------------------------------------
 export const action = async ({ request }) => {
     const { session, admin } = await authenticate.admin(request);
+    await requireFeatureAccess(session.shop, "FIXED_BUNDLE");
 
     //Get form data
 

@@ -44,6 +44,7 @@ export const loader = async ({ request }) => {
 
 export const action = async ({ request }) => {
     const { session, admin } = await authenticate.admin(request);
+    await requireFeatureAccess(session.shop, "VOLUME_BUNDLE");
     const formData = await request.formData();
     const title = formData.get("title")?.trim();
     const description = formData.get("description")?.trim();

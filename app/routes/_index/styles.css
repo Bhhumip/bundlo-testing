@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
 
 */ .bc-page * {
   box-sizing: border-box;
@@ -15,22 +15,22 @@ html {
 }
 
 .bc-page {
-  --color-bg: #faf3de;
-  --color-surface: #f3e8c6;
-  --color-surface-raised: #fffdf6;
-  --color-ink: #2e2411;
-  --color-ink-soft: #6e5b37;
-  --color-pine: #e8a93a;
-  --color-pine-dark: #c98a1e;
-  --color-brass: #8a5c22;
-  --color-brass-on-dark: #f0c374;
-  --color-brass-soft: #ecdcb1;
-  --color-border: #e6d6a4;
-  --color-on-accent: #2e2411;
-  --color-focus-ring: #c98a1e;
-  /* light text tokens — for use on darkened hero/banner imagery only */
-  --color-ink-on-dark: #faf6ee;
-  --color-ink-soft-on-dark: #e6d9bf;
+  --color-bg: #ffffff;
+  --color-surface: #f5f5f5;
+  --color-surface-raised: #ffffff;
+  --color-ink: #111111;
+  --color-ink-soft: #555555;
+  --color-pine: #ffd600;
+  --color-pine-dark: #e6c200;
+  --color-brass: #111111;
+  --color-brass-on-dark: #ffd600;
+  --color-brass-soft: #fff3a3;
+  --color-border: #e5e5e5;
+  --color-on-accent: #111111;
+  --color-focus-ring: #ffd600;
+  /* light text tokens â€” for use on darkened hero/banner imagery only */
+  --color-ink-on-dark: #111111;
+  --color-ink-soft-on-dark: #333333;
   --font-display: "Fraunces", Georgia, serif;
   --font-body: "Public Sans", -apple-system, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
@@ -96,7 +96,7 @@ html {
 .bc-nav {
   max-width: 1160px;
   margin: 0 auto;
-  background: rgba(250, 243, 222, 0.82);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(14px);
   border: 1px solid var(--color-border);
   border-radius: 999px;
@@ -197,34 +197,50 @@ html {
 /* ---------- hero ---------- */
 .bc-hero-photo-wrap {
   position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+  align-items: center;
+  gap: 48px;
+  padding: 64px max(32px, calc((100vw - 1096px) / 2)) 68px;
+  background: var(--color-bg);
+  overflow: hidden;
 }
 
 .bc-hero-bg-img {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  inset: auto;
   z-index: 0;
+  grid-column: 2;
+  grid-row: 1;
+  width: 100%;
+  min-width: 0;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #fff8dc;
 }
 
 .bc-hero-bg-img img {
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: saturate(0.9) brightness(0.42);
+  height: auto;
+  max-height: 400px;
+  object-fit: contain;
+  filter: none;
 }
 
 .bc-hero-scrim {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: linear-gradient(180deg, rgba(46, 36, 17, 0.72) 0%, rgba(46, 36, 17, 0.90) 70%, var(--color-bg) 100%);
+  display: none;
 }
 
 .bc-hero-top {
   position: relative;
   z-index: 2;
-  text-align: center;
-  padding-top: 64px;
-  padding-bottom: 44px;
+  grid-column: 1;
+  grid-row: 1;
+  width: 100%;
+  max-width: 540px;
+  padding: 0;
+  text-align: left;
 }
 
 .bc-eyebrow {
@@ -232,27 +248,27 @@ html {
   font-size: 0.72rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-brass-on-dark);
-  margin: 0 0 24px;
+  color: #9a6800;
+  margin: 0 0 20px;
 }
 
 .bc-h1 {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: clamp(2.6rem, 5.4vw, 4.2rem);
-  line-height: 1.05;
-  letter-spacing: -0.01em;
-  margin: 0 auto 20px;
-  max-width: 18ch;
-  color: var(--color-ink-on-dark);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: clamp(2.5rem, 4.6vw, 4rem);
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+  margin: 0 0 20px;
+  max-width: 12ch;
+  color: #111111;
 }
 
 .bc-hero-text {
-  font-size: 1.1rem;
-  line-height: 1.6;
-  color: var(--color-ink-soft-on-dark);
-  max-width: 52ch;
-  margin: 0 auto 32px;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #555555;
+  max-width: 48ch;
+  margin: 0 0 28px;
 }
 
 /* ---------- hero login form ---------- */
@@ -1466,4 +1482,97 @@ html {
   font-size: 13px;
   color: #9ca3af;
   font-style: italic;
+}
+
+
+
+/* ---------- hero responsive layout ---------- */
+@media (max-width: 768px) {
+  .bc-hero-photo-wrap {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    padding: 48px 24px 56px;
+  }
+
+  .bc-hero-top {
+    grid-column: 1;
+    grid-row: 1;
+    max-width: 100%;
+  }
+
+  .bc-hero-bg-img {
+    grid-column: 1;
+    grid-row: 2;
+    border-radius: 16px;
+  }
+
+  .bc-hero-bg-img img {
+    max-height: 320px;
+  }
+
+  .bc-h1 {
+    font-size: clamp(2.3rem, 9vw, 3.2rem);
+  }
+
+  .bc-hero-text {
+    font-size: 1rem;
+  }
+}
+
+
+
+
+/* ---------- mobile navbar polish ---------- */
+@media (max-width: 600px) {
+  .bc-nav-outer {
+    padding: 0 10px;
+    top: 8px;
+  }
+
+  .bc-nav-inner {
+    padding: 8px 10px 8px 12px;
+    gap: 8px;
+  }
+
+  .bc-wordmark {
+    min-width: 0;
+    gap: 7px;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .bc-nav-logo {
+    height: 25px;
+    flex-shrink: 0;
+  }
+
+  .bc-nav-cta {
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    padding: 9px 11px;
+  }
+}
+
+/* ---------- mobile hero spacing refinement ---------- */
+@media (max-width: 600px) {
+  .bc-hero-photo-wrap {
+    padding-top: 32px;
+    padding-bottom: 36px;
+    gap: 20px;
+  }
+
+  .bc-h1 {
+    margin-top: 0;
+    margin-bottom: 16px;
+  }
+
+  .bc-hero-text {
+    margin-bottom: 22px;
+  }
+
+  .bc-hero-bg-img img {
+    max-height: 260px;
+  }
 }

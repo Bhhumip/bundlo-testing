@@ -28,7 +28,7 @@ export function DonationsCheckoutPreview({ theme }) {
                 <div style={{ fontSize: "12px", color: "#6d7175" }}>{theme.subheading}</div>
             )}
             <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                {theme.donationTiers.map((amt) => (
+                {(theme.donationTiers ?? []).map((amt) => (
                     <span key={amt} style={{
                         fontSize: "12px",
                         padding: "6px 12px",
